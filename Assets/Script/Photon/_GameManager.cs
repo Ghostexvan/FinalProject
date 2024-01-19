@@ -50,6 +50,10 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
         }
 
         playerInfos = new PlayerInfo[PhotonNetwork.PlayerList.Length];
+        for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+        {
+            playerInfos[i] = new PlayerInfo();
+        }
 
         gamePanel = GameObject.FindGameObjectWithTag("GamePanel");
         if (gamePanel == null)
@@ -102,12 +106,16 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
         {
             Debug.LogFormat("Ignoring scene load for {0}", SceneManager.GetActiveScene().name);
         }
+
+        StartCoroutine(WaitForOtherPlayers());
     }
 
     // Update is called once per frame
     private void Update()
     {
+        // startingPanel.transform.GetChild(0).GetComponent<TMP_Text>().text = "Rank " + playerInfos[PhotonNetwork.LocalPlayer.GetPlayerNumber()].GetRank();
         UpdatePlayerInfo();
+        RankCalculate();
     }
 
     #endregion
@@ -131,33 +139,26 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         // throw new NotImplementedException();
-        if (PhotonNetwork.IsMasterClient && stream.IsWriting)
-        {
-            foreach (PlayerInfo playerInfo in playerInfos)
-            {
-                Debug.LogWarning("Player info send is null: " + (playerInfo == null));
-                if (playerInfo != null)
-                {
-                    stream.SendNext(playerInfo.GetRank());
-                    stream.SendNext(playerInfo.GetCurrentLap());
-                    stream.SendNext(playerInfo.GetCurrentCheckpoint());
-                    stream.SendNext(playerInfo.GetDistanceToNextCheckpoint());
-                }
-            }
-        }
-        else if (!PhotonNetwork.IsMasterClient && stream.IsReading)
+        if (PhotonNetwork.IsMasterClient)
         {
             for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
             {
-                if (playerInfos[i] == null)
-                {
-                    playerInfos[i] = new PlayerInfo();
-                }
-
-                playerInfos[i].SetRank((int)stream.ReceiveNext());
-                playerInfos[i].UpdateInfo((int)stream.ReceiveNext(),
-                                          (int)stream.ReceiveNext(),
-                                          (float)stream.ReceiveNext());
+                stream.SendNext(i);
+                stream.SendNext(playerInfos[i].GetRank());
+                stream.SendNext(playerInfos[i].GetCurrentLap());
+                stream.SendNext(playerInfos[i].GetCurrentLap());
+                stream.SendNext(playerInfos[i].GetDistanceToNextCheckpoint());
+            }
+        }
+        else if (!PhotonNetwork.IsMasterClient)
+        {
+            for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+            {
+                int index = (int)stream.ReceiveNext();
+                playerInfos[index].SetRank((int)stream.ReceiveNext());
+                playerInfos[index].UpdateInfo((int)stream.ReceiveNext(),
+                                              (int)stream.ReceiveNext(),
+                                              (float)stream.ReceiveNext());
             }
         }
     }
@@ -184,25 +185,121 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         // photonView.RPC("SetPlayer", RpcTarget.All, PhotonNetwork.LocalPlayer.GetPlayerNumber(), CarControl.LocalPlayerInstance);
         // photonView.RPC("SetPlayer", RpcTarget.All);
-        photonView.RPC("SetPlayer", RpcTarget.MasterClient);
+        photonView.RPC("SetPlayer", RpcTarget.All);
     }
 
     private void UpdatePlayerInfo()
     {
-        Dictionary<string, float> playerData = new Dictionary<string, float>
-        {
-            { "currentLap", CarControl.LocalPlayerInstance.GetComponent<LapController>().GetCurrentLapNum() },
-            { "currentCheckpoint", CarControl.LocalPlayerInstance.GetComponent<LapController>().GetCurrentCheckpoint() },
-            { "distanceToNextCheckpoint", CarControl.LocalPlayerInstance.GetComponent<LapController>().GetDistanceToNextCheckpoint() }
-        };
-
         object[] sendData = {
             CarControl.LocalPlayerInstance.GetComponent<LapController>().GetCurrentLapNum(),
             CarControl.LocalPlayerInstance.GetComponent<LapController>().GetCurrentCheckpoint(),
             CarControl.LocalPlayerInstance.GetComponent<LapController>().GetDistanceToNextCheckpoint()
         };
 
+        if (!CarControl.LocalPlayerInstance.GetComponent<LapController>().GetCountStatus() &&
+            (int)sendData[0] == 1)
+        {
+            sendData[0] = -1;
+        }
+
         photonView.RPC("SetPlayerInfo", RpcTarget.MasterClient, sendData as object);
+    }
+
+    private void FillRank()
+    {
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            return;
+        }
+
+        int rankNum = 1;
+        foreach (PlayerInfo playerInfo in playerInfos)
+        {
+            playerInfo.SetRank(rankNum);
+            rankNum++;
+        }
+    }
+
+    private void RankCalculate()
+    {
+        if (!PhotonNetwork.IsMasterClient || !isGameStart)
+        {
+            return;
+        }
+
+        for (int firstLoop = 0; firstLoop < PhotonNetwork.PlayerList.Length - 1; firstLoop++)
+        {
+            for (int secondLoop = firstLoop + 1; secondLoop < PhotonNetwork.PlayerList.Length; secondLoop++)
+            {
+                if (playerInfos[firstLoop].GetCurrentLap() != playerInfos[secondLoop].GetCurrentLap())
+                {
+                    if (playerInfos[firstLoop].GetCurrentLap() > playerInfos[secondLoop].GetCurrentLap() &&
+                        playerInfos[firstLoop].GetRank() > playerInfos[secondLoop].GetRank())
+                    {
+                        Debug.LogWarning("Swap rank of player " + firstLoop + " and " + secondLoop + " due to lap");
+                        int rankSwap = playerInfos[firstLoop].GetRank();
+                        playerInfos[firstLoop].SetRank(playerInfos[secondLoop].GetRank());
+                        playerInfos[secondLoop].SetRank(rankSwap);
+                    }
+                    else if (playerInfos[firstLoop].GetCurrentLap() < playerInfos[secondLoop].GetCurrentLap() &&
+                             playerInfos[firstLoop].GetRank() < playerInfos[secondLoop].GetRank())
+                    {
+                        Debug.LogWarning("Swap rank of player " + firstLoop + " and " + secondLoop + " due to lap");
+                        int rankSwap = playerInfos[firstLoop].GetRank();
+                        playerInfos[firstLoop].SetRank(playerInfos[secondLoop].GetRank());
+                        playerInfos[secondLoop].SetRank(rankSwap);
+                    }
+
+                    continue;
+                }
+                else if (playerInfos[firstLoop].GetCurrentCheckpoint() != playerInfos[secondLoop].GetCurrentCheckpoint())
+                {
+                    if (playerInfos[firstLoop].GetCurrentCheckpoint() > playerInfos[secondLoop].GetCurrentCheckpoint() &&
+                        playerInfos[firstLoop].GetRank() > playerInfos[secondLoop].GetRank())
+                    {
+                        Debug.LogWarning("Swap rank of player " + firstLoop + " and " + secondLoop + " due to checkpoint");
+                        int rankSwap = playerInfos[firstLoop].GetRank();
+                        playerInfos[firstLoop].SetRank(playerInfos[secondLoop].GetRank());
+                        playerInfos[secondLoop].SetRank(rankSwap);
+                    }
+                    else if (playerInfos[firstLoop].GetCurrentCheckpoint() < playerInfos[secondLoop].GetCurrentCheckpoint() &&
+                             playerInfos[firstLoop].GetRank() < playerInfos[secondLoop].GetRank())
+                    {
+                        Debug.LogWarning("Swap rank of player " + firstLoop + " and " + secondLoop + " due to checkpoint");
+                        int rankSwap = playerInfos[firstLoop].GetRank();
+                        playerInfos[firstLoop].SetRank(playerInfos[secondLoop].GetRank());
+                        playerInfos[secondLoop].SetRank(rankSwap);
+                    }
+
+                    continue;
+                }
+                else
+                {        
+                    if (playerInfos[firstLoop].GetDistanceToNextCheckpoint() > playerInfos[secondLoop].GetDistanceToNextCheckpoint() &&
+                        playerInfos[firstLoop].GetRank() < playerInfos[secondLoop].GetRank())
+                    {
+                        Debug.LogWarning("Swap rank of player " + firstLoop + " and " + secondLoop + " due to distance");
+                        int rankSwap = playerInfos[firstLoop].GetRank();
+                        playerInfos[firstLoop].SetRank(playerInfos[secondLoop].GetRank());
+                        playerInfos[secondLoop].SetRank(rankSwap);
+                    }
+                    else if (playerInfos[firstLoop].GetDistanceToNextCheckpoint() < playerInfos[secondLoop].GetDistanceToNextCheckpoint() &&
+                             playerInfos[firstLoop].GetRank() > playerInfos[secondLoop].GetRank())
+                    {
+                        Debug.LogWarning("Swap rank of player " + firstLoop + " and " + secondLoop + " due to distance");
+                        int rankSwap = playerInfos[firstLoop].GetRank();
+                        playerInfos[firstLoop].SetRank(playerInfos[secondLoop].GetRank());
+                        playerInfos[secondLoop].SetRank(rankSwap);
+                    }
+                }
+            }
+        }
+    }
+
+    private void TurnOffWaitPanel()
+    {
+        startingPanel.SetActive(false);
+        gamePanel.SetActive(true);
     }
 
     #endregion
@@ -243,6 +340,10 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
         return this.checkpointList.Length;
     }
 
+    public int GetLocalPlayerRank(){
+        return playerInfos[PhotonNetwork.LocalPlayer.GetPlayerNumber()].GetRank();
+    }
+
     #endregion
 
     #region IEnumerator Methods
@@ -260,15 +361,35 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
             }
             return numOfPlayerReady == PhotonNetwork.PlayerList.Length;
         });
+
+        FillRank();
+        TurnOffWaitPanel();
+        StartCoroutine(CountdownStart(3));
+    }
+
+    IEnumerator CountdownStart(int seconds)
+    {
+        int counter = seconds;
+        while (counter > 0)
+        {
+            gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text = counter.ToString();
+            yield return new WaitForSeconds(1);
+            counter--;
+        }
+
+        this.isGameStart = true;
+        gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text = "START";
+        yield return new WaitForSeconds(3);
+        gamePanel.transform.GetChild(1).gameObject.SetActive(false);
     }
 
     #endregion
 
     #region PunRPC Methods
     [PunRPC]
-    public void SetPlayer()
+    public void SetPlayer(PhotonMessageInfo info)
     {
-        playerInfos[PhotonNetwork.LocalPlayer.GetPlayerNumber()] = new PlayerInfo();
+        playerInfos[info.Sender.GetPlayerNumber()].SetReady();
     }
 
     [PunRPC]

@@ -184,6 +184,10 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
         return this.distanceToNextCheckpoint;
     }
 
+    public bool GetCountStatus(){
+        return this.startCount;
+    }
+
     #endregion
 
     #region Private Methods
@@ -206,8 +210,10 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
             return;
         }
 
+        text.text = "Pos: " + _GameManager.Instance.GetLocalPlayerRank() + "/" + PhotonNetwork.PlayerList.Length + "<br>";
+
         // Hien thi vong dua hien tai cua nguoi choi
-        text.text = "Lap: " + lapInfos[lapInfos.Count - 1].GetLapNum() + "/" + _GameManager.Instance.GetTotalLapNum() + "<br>";
+        text.text += "Lap: " + lapInfos[lapInfos.Count - 1].GetLapNum() + "/" + _GameManager.Instance.GetTotalLapNum() + "<br>";
 
         // Voi tung thong tin vong dua cua nguoi choi
         foreach (LapInfo lapInfo in lapInfos)

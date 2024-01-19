@@ -26,7 +26,7 @@ public class PlayerInfo
 
     #region Construtors
     public PlayerInfo(){
-        this.isReady = true;
+        this.isReady = false;
     }
 
     #endregion
@@ -37,6 +37,10 @@ public class PlayerInfo
         this.currentLap = currentLap;
         this.currentCheckpoint = currentCheckpoint;
         this.distanceToNextCheckpoint = distanceToNextCheckpoint;
+    }
+
+    public void SetReady(){
+        this.isReady = true;
     }
 
     public void SetRank(int rank){
