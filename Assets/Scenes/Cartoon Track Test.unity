@@ -2892,7 +2892,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 0
+  m_BlockingObjects: 3
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -4973,6 +4973,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   totalLaps: 1
   playerInfos: []
+  startTime: 0
   playerPrefab: {fileID: 8348863334990538945, guid: 226b72320d7d9c949945df0bb5e78c74, type: 3}
 --- !u!4 &1194024307
 Transform:
