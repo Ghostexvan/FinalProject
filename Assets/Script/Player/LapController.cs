@@ -184,7 +184,8 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
         return this.distanceToNextCheckpoint;
     }
 
-    public bool GetCountStatus(){
+    public bool GetCountStatus()
+    {
         return this.startCount;
     }
 
@@ -210,33 +211,28 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
             return;
         }
 
-        text.text = "Pos: " + _GameManager.Instance.GetLocalPlayerRank() + "/" + PhotonNetwork.PlayerList.Length + "<br>";
+        text.text = "<i>Pos: <pos=25%><size=200%><b>" + _GameManager.Instance.GetLocalPlayerRank() + "</b><size=100%>/" + PhotonNetwork.PlayerList.Length + "</i>\n";
 
         // Hien thi vong dua hien tai cua nguoi choi
-        text.text += "Lap: " + lapInfos[lapInfos.Count - 1].GetLapNum() + "/" + _GameManager.Instance.GetTotalLapNum() + "<br>";
+        text.text += "<i>Lap: <pos=25%><size=200%><b>" + lapInfos[lapInfos.Count - 1].GetLapNum() + "</b><size=100%>/" + _GameManager.Instance.GetTotalLapNum() + "</i><line-height=200%>\n";
 
-        // Voi tung thong tin vong dua cua nguoi choi
-        foreach (LapInfo lapInfo in lapInfos)
+        text.text += "<size=150%><i>";
+
+        // Neu vong dua chua hoan thanh
+        if (lapInfos[lapInfos.Count - 1].GetTimeFinished() == 0)
         {
-            // Hien thi so vong dua tuong ung
-            text.text += lapInfo.GetLapNum() + ": ";
-
-            // Neu vong dua chua hoan thanh
-            if (lapInfo.GetTimeFinished() == 0)
-            {
-                // Hien thi thoi gian tinh tu luc bat dau vong dua den hien tai
-                text.text += TimeSpan.FromSeconds(Time.realtimeSinceStartup - lapInfo.GetTimeStarted()).ToString("mm':'ss':'ff");
-            }
-            // Neu vong dua da hoan thanh
-            else
-            {
-                // Hien thi thoi gian hoan thanh vong dua
-                text.text += TimeSpan.FromSeconds(lapInfo.GetTimeFinished() - lapInfo.GetTimeStarted()).ToString("mm':'ss':'ff");
-            }
-
-            // Xuong dong (cho cac thong tin vong dua sau)
-            text.text += "<br>";
+            // Hien thi thoi gian tinh tu luc bat dau vong dua den hien tai
+            text.text += TimeSpan.FromSeconds(Time.realtimeSinceStartup - lapInfos[lapInfos.Count - 1].GetTimeStarted()).ToString("mm':'ss':'ff");
         }
+        // Neu vong dua da hoan thanh
+        else
+        {
+            // Hien thi thoi gian hoan thanh vong dua
+            text.text += TimeSpan.FromSeconds(lapInfos[lapInfos.Count - 1].GetTimeFinished() - lapInfos[lapInfos.Count - 1].GetTimeStarted()).ToString("mm':'ss':'ff");
+        }
+
+        text.text += "</i>";
+
     }
 
     // Xac dinh khoang cach cua nguoi choi den checkpoint tiep theo
@@ -408,6 +404,11 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
 
                 // Them vong dua moi
                 lapInfos.Add(new LapInfo(lapInfos.Count + 1, Time.realtimeSinceStartup));
+
+                if (lapInfos.Count > _GameManager.Instance.GetTotalLapNum()){
+                    this.startCount = false;
+                    _GameManager.Instance.SetLocalPlayerFinish();
+                }
             }
         }
     }
@@ -455,7 +456,7 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
         // Dem nguoc thoi gian va hien thi
         while (timePause > 0)
         {
-            this.gameInfoText.GetComponent<TMP_Text>().text = "WRONG DIRECTION!<br>Resetting position in " + TimeSpan.FromSeconds(timePause).ToString("mm':'ss':'ff");
+            this.gameInfoText.GetComponent<TMP_Text>().text = "WRONG DIRECTION!\nResetting position in " + TimeSpan.FromSeconds(timePause).ToString("mm':'ss':'ff");
             timePause -= Time.deltaTime;
             yield return new WaitForSeconds(Time.deltaTime);
         }

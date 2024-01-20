@@ -13,7 +13,6 @@ using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using Photon.Pun.UtilityScripts;
-using System.Collections.Generic;
 
 public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
 {
@@ -24,10 +23,14 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
     [SerializeField]
     private PlayerInfo[] playerInfos;
 
+    [SerializeField]
+    private float startTime;
+
     #endregion
 
     #region Private Fields
     private bool isGameStart;
+    private bool isCountdownEnd = false;
     private GameObject startingPanel;
     private GameObject gamePanel;
     private GameObject[] checkpointList;
@@ -231,6 +234,11 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
         {
             for (int secondLoop = firstLoop + 1; secondLoop < PhotonNetwork.PlayerList.Length; secondLoop++)
             {
+                if (!playerInfos[firstLoop].GetPlayerStatus() || !playerInfos[secondLoop].GetPlayerStatus())
+                {
+                    continue;
+                }
+
                 if (playerInfos[firstLoop].GetCurrentLap() != playerInfos[secondLoop].GetCurrentLap())
                 {
                     if (playerInfos[firstLoop].GetCurrentLap() > playerInfos[secondLoop].GetCurrentLap() &&
@@ -274,7 +282,7 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
                     continue;
                 }
                 else
-                {        
+                {
                     if (playerInfos[firstLoop].GetDistanceToNextCheckpoint() > playerInfos[secondLoop].GetDistanceToNextCheckpoint() &&
                         playerInfos[firstLoop].GetRank() < playerInfos[secondLoop].GetRank())
                     {
@@ -300,6 +308,12 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         startingPanel.SetActive(false);
         gamePanel.SetActive(true);
+    }
+
+    private void StopAllMoving()
+    {
+        this.isGameStart = false;
+        CarControl.LocalPlayerInstance.GetComponent<CarControl>().StopEngine();
     }
 
     #endregion
@@ -340,7 +354,13 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
         return this.checkpointList.Length;
     }
 
-    public int GetLocalPlayerRank(){
+    public void SetLocalPlayerFinish()
+    {
+        photonView.RPC("FinishRace", RpcTarget.All);
+    }
+
+    public int GetLocalPlayerRank()
+    {
         return playerInfos[PhotonNetwork.LocalPlayer.GetPlayerNumber()].GetRank();
     }
 
@@ -381,6 +401,74 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
         gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text = "START";
         yield return new WaitForSeconds(3);
         gamePanel.transform.GetChild(1).gameObject.SetActive(false);
+        startTime = Time.timeSinceLevelLoad;
+
+        // StartCoroutine(CountdownEnd(3, "Test"));
+    }
+
+    IEnumerator CountdownEnd(int seconds, string playerName)
+    {
+        if (isCountdownEnd)
+        {
+            yield break;
+        }
+        isCountdownEnd = true;
+
+        gamePanel.transform.GetChild(1).gameObject.SetActive(true);
+
+        int counter = seconds;
+        while (counter > 0)
+        {
+            if (!playerInfos[PhotonNetwork.LocalPlayer.GetPlayerNumber()].GetPlayerStatus())
+            {
+                gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text = "You have finished the race!\n";
+                gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text += "Your rank: " + playerInfos[PhotonNetwork.LocalPlayer.GetPlayerNumber()].GetRank();
+                counter--;
+                continue;
+            }
+
+            gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text = playerName + " has finish the race!\n";
+            gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text += "Time left to finish: ";
+            gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text += counter.ToString();
+            yield return new WaitForSeconds(1);
+            counter--;
+        }
+
+        StopAllMoving();
+
+        gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text = "<size=200%><b>GAME OVER!</b>";
+        yield return new WaitForSeconds(5.0f);
+
+        gamePanel.SetActive(false);
+        startingPanel.SetActive(true);
+
+        int[] rankIndex = new int[4];
+        int currentRank = 1;
+        while (currentRank <= PhotonNetwork.PlayerList.Length)
+        {
+            for (int index = 0; index < PhotonNetwork.PlayerList.Length; index++)
+            {
+                if (playerInfos[index].GetRank() == currentRank)
+                {
+                    rankIndex[currentRank - 1] = index;
+                    currentRank++;
+                    break;
+                }
+            }
+        }
+
+        // while (true)
+        // {
+        startingPanel.transform.GetChild(0).GetComponent<TMP_Text>().text = "<align=center><size=100%><b>GAME OVER!</b></align>\n";
+        for (int index = 0; index < PhotonNetwork.PlayerList.Length; index++)
+        {
+            startingPanel.transform.GetChild(0).GetComponent<TMP_Text>().text += "<size=80%><i>" + (index + 1) + ". " + PhotonNetwork.PlayerList[rankIndex[index]].NickName
+                                                                                 + "\n";
+            // if (playerInfos[rankIndex[index]].GetFinishTime() == -1) {
+            //     startingPanel.transform.GetChild(0).GetComponent<TMP_Text>().text += TimeSpan.FromSeconds.ToString("mm':'ss':'ff");
+            // }
+        }
+        // }
     }
 
     #endregion
@@ -405,6 +493,14 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
             (int)playerInfo[1],
             (float)playerInfo[2]
         );
+    }
+
+    [PunRPC]
+    public void FinishRace(PhotonMessageInfo info)
+    {
+        playerInfos[info.Sender.GetPlayerNumber()].SetReady();
+        playerInfos[info.Sender.GetPlayerNumber()].SetFinishTime();
+        StartCoroutine(CountdownEnd(10, info.Sender.NickName));
     }
 
     #endregion

@@ -118,6 +118,7 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
 
     public void StopEngine(){
         isStop = true;
+        rigidBody.velocity = Vector3.zero;
     }
 
     public void StartEngine(){

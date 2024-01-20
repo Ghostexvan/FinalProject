@@ -20,6 +20,9 @@ public class PlayerInfo
     private float distanceToNextCheckpoint;
 
     [SerializeField]
+    private float finishTime;
+
+    [SerializeField]
     private bool isReady;
 
     #endregion
@@ -27,6 +30,7 @@ public class PlayerInfo
     #region Construtors
     public PlayerInfo(){
         this.isReady = false;
+        finishTime = -1;
     }
 
     #endregion
@@ -40,11 +44,15 @@ public class PlayerInfo
     }
 
     public void SetReady(){
-        this.isReady = true;
+        this.isReady = !this.isReady;
     }
 
     public void SetRank(int rank){
         this.rank = rank;
+    }
+
+    public void SetFinishTime() {
+        this.finishTime = Time.timeSinceLevelLoad;
     }
 
     public bool GetPlayerStatus(){
@@ -65,6 +73,10 @@ public class PlayerInfo
 
     public float GetDistanceToNextCheckpoint(){
         return this.distanceToNextCheckpoint;
+    }
+
+    public float GetFinishTime(){
+        return this.finishTime;
     }
     
     #endregion
