@@ -10,7 +10,7 @@ public class PlayerInfo
     [SerializeField]
     private int rank;
 
-    [SerializeField] 
+    [SerializeField]
     private int currentLap;
 
     [SerializeField]
@@ -20,7 +20,7 @@ public class PlayerInfo
     private float distanceToNextCheckpoint;
 
     [SerializeField]
-    private float finishTime;
+    private double finishTime;
 
     [SerializeField]
     private bool isReady;
@@ -28,7 +28,8 @@ public class PlayerInfo
     #endregion
 
     #region Construtors
-    public PlayerInfo(){
+    public PlayerInfo()
+    {
         this.isReady = false;
         finishTime = -1;
     }
@@ -37,47 +38,57 @@ public class PlayerInfo
 
     #region Public Fields
 
-    public void UpdateInfo(int currentLap, int currentCheckpoint, float distanceToNextCheckpoint){
+    public void UpdateInfo(int currentLap, int currentCheckpoint, float distanceToNextCheckpoint)
+    {
         this.currentLap = currentLap;
         this.currentCheckpoint = currentCheckpoint;
         this.distanceToNextCheckpoint = distanceToNextCheckpoint;
     }
 
-    public void SetReady(){
+    public void SetReady()
+    {
         this.isReady = !this.isReady;
     }
 
-    public void SetRank(int rank){
+    public void SetRank(int rank)
+    {
         this.rank = rank;
     }
 
-    public void SetFinishTime() {
-        this.finishTime = Time.timeSinceLevelLoad;
+    public void SetFinishTime(double finishTime)
+    {
+        this.finishTime = finishTime;
     }
 
-    public bool GetPlayerStatus(){
+    public bool GetPlayerStatus()
+    {
         return isReady;
     }
 
-    public int GetRank(){
+    public int GetRank()
+    {
         return this.rank;
     }
 
-    public int GetCurrentLap(){
+    public int GetCurrentLap()
+    {
         return this.currentLap;
     }
 
-    public int GetCurrentCheckpoint(){
+    public int GetCurrentCheckpoint()
+    {
         return this.currentCheckpoint;
     }
 
-    public float GetDistanceToNextCheckpoint(){
+    public float GetDistanceToNextCheckpoint()
+    {
         return this.distanceToNextCheckpoint;
     }
 
-    public float GetFinishTime(){
+    public double GetFinishTime()
+    {
         return this.finishTime;
     }
-    
+
     #endregion
 }

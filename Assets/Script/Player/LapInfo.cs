@@ -14,18 +14,18 @@ public class LapInfo
 
     // Thoi gian bat dau vong dua
     [SerializeField]
-    private float timeStarted;
+    private double timeStarted;
 
     // Thoi gian ket thuc vong dua
     [SerializeField]
-    private float timeFinished;
+    private double timeFinished;
 
     #endregion
 
     #region Constructor
     // Region nay chua nhung ham khoi tao
     // Khi khoi tao mot vong dua moi, chi can quan tam so vong dua va thoi gian bat dau
-    public LapInfo(int lapNum, float timeStarted)
+    public LapInfo(int lapNum, double timeStarted)
     {
         this.lapNum = lapNum;
         this.timeStarted = timeStarted;
@@ -36,7 +36,7 @@ public class LapInfo
     #region Public Methods
     // Region nay chua nhung ham public
     // Dat thoi gian ket thuc cho vong dua
-    public void SetTimeFinished(float timeFinished)
+    public void SetTimeFinished(double timeFinished)
     {
         this.timeFinished = timeFinished;
     }
@@ -48,13 +48,13 @@ public class LapInfo
     }
 
     // Lay thoi gian bat dau vong dua
-    public float GetTimeStarted()
+    public double GetTimeStarted()
     {
         return this.timeStarted;
     }
 
     // Lay thoi gian ket thuc vong dua
-    public float GetTimeFinished()
+    public double GetTimeFinished()
     {
         return this.timeFinished;
     }

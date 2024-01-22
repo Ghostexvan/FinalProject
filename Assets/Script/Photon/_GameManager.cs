@@ -24,7 +24,10 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
     private PlayerInfo[] playerInfos;
 
     [SerializeField]
-    private float startTime;
+    private double startTime = -1f;
+
+    [SerializeField]
+    private double endTime = -1f;
 
     #endregion
 
@@ -86,6 +89,9 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
         gamePanel.SetActive(false);
         startingPanel.SetActive(true);
+
+        this.startTime = -1f;
+        this.endTime = -1f;
     }
 
     // Start is called before the first frame update
@@ -151,6 +157,7 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
                 stream.SendNext(playerInfos[i].GetCurrentLap());
                 stream.SendNext(playerInfos[i].GetCurrentLap());
                 stream.SendNext(playerInfos[i].GetDistanceToNextCheckpoint());
+                stream.SendNext(playerInfos[i].GetFinishTime());
             }
         }
         else if (!PhotonNetwork.IsMasterClient)
@@ -162,8 +169,14 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
                 playerInfos[index].UpdateInfo((int)stream.ReceiveNext(),
                                               (int)stream.ReceiveNext(),
                                               (float)stream.ReceiveNext());
+                playerInfos[index].SetFinishTime((double)stream.ReceiveNext());
             }
         }
+    }
+
+    public double GetStartTime()
+    {
+        return this.startTime;
     }
 
     #endregion
@@ -354,9 +367,9 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
         return this.checkpointList.Length;
     }
 
-    public void SetLocalPlayerFinish()
+    public void SetLocalPlayerFinish(double finishTime)
     {
-        photonView.RPC("FinishRace", RpcTarget.All);
+        photonView.RPC("FinishRace", RpcTarget.All, finishTime);
     }
 
     public int GetLocalPlayerRank()
@@ -401,7 +414,12 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
         gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text = "START";
         yield return new WaitForSeconds(3);
         gamePanel.transform.GetChild(1).gameObject.SetActive(false);
-        startTime = Time.timeSinceLevelLoad;
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            startTime = PhotonNetwork.Time;
+            photonView.RPC("SetStartTime", RpcTarget.Others, startTime);
+        }
 
         // StartCoroutine(CountdownEnd(3, "Test"));
     }
@@ -423,6 +441,7 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
             {
                 gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text = "You have finished the race!\n";
                 gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text += "Your rank: " + playerInfos[PhotonNetwork.LocalPlayer.GetPlayerNumber()].GetRank();
+                yield return new WaitForSeconds(1);
                 counter--;
                 continue;
             }
@@ -434,10 +453,15 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
             counter--;
         }
 
+        if (PhotonNetwork.IsMasterClient)
+        {
+            photonView.RPC("SetEndTime", RpcTarget.All, PhotonNetwork.Time);
+        }
+
         StopAllMoving();
 
         gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text = "<size=200%><b>GAME OVER!</b>";
-        yield return new WaitForSeconds(5.0f);
+        yield return new WaitUntil(() => this.endTime != -1f && PhotonNetwork.Time - this.endTime >= 5.0f);
 
         gamePanel.SetActive(false);
         startingPanel.SetActive(true);
@@ -463,10 +487,15 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
         for (int index = 0; index < PhotonNetwork.PlayerList.Length; index++)
         {
             startingPanel.transform.GetChild(0).GetComponent<TMP_Text>().text += "<size=80%><i>" + (index + 1) + ". " + PhotonNetwork.PlayerList[rankIndex[index]].NickName
-                                                                                 + "\n";
-            // if (playerInfos[rankIndex[index]].GetFinishTime() == -1) {
-            //     startingPanel.transform.GetChild(0).GetComponent<TMP_Text>().text += TimeSpan.FromSeconds.ToString("mm':'ss':'ff");
-            // }
+                                                                                 + "<pos=75%>";
+            if (playerInfos[rankIndex[index]].GetFinishTime() == -1)
+            {
+                startingPanel.transform.GetChild(0).GetComponent<TMP_Text>().text += TimeSpan.FromSeconds(this.endTime - this.startTime).ToString("mm':'ss':'ff") + "\n";
+            }
+            else
+            {
+                startingPanel.transform.GetChild(0).GetComponent<TMP_Text>().text += TimeSpan.FromSeconds(playerInfos[rankIndex[index]].GetFinishTime() - this.startTime).ToString("mm':'ss':'ff") + "\n";
+            }
         }
         // }
     }
@@ -496,11 +525,23 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
     }
 
     [PunRPC]
-    public void FinishRace(PhotonMessageInfo info)
+    public void FinishRace(double timeFinished, PhotonMessageInfo info)
     {
         playerInfos[info.Sender.GetPlayerNumber()].SetReady();
-        playerInfos[info.Sender.GetPlayerNumber()].SetFinishTime();
+        playerInfos[info.Sender.GetPlayerNumber()].SetFinishTime(timeFinished);
         StartCoroutine(CountdownEnd(10, info.Sender.NickName));
+    }
+
+    [PunRPC]
+    public void SetStartTime(double startTime)
+    {
+        this.startTime = startTime;
+    }
+
+    [PunRPC]
+    public void SetEndTime(double endTime)
+    {
+        this.endTime = endTime;
     }
 
     #endregion
