@@ -1,12 +1,13 @@
 // Chua comment
+using System;
 using Photon.Pun;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
 {
     public bool isStop = false;
     public static GameObject LocalPlayerInstance;
-
     public float motorTorque = 2000;
     public float brakeTorque = 2000;
     public float maxSpeed = 20;
@@ -20,20 +21,30 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
     public float vInput = 0f,
                  hInput = 0f;
 
+    private float forwardSpeed;
+
+    [Tooltip("The Player's UI GameObject Prefab")]
+    [SerializeField]
+    public GameObject PlayerUiPrefab;
+
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
-        if (stream.IsWriting){
+        if (stream.IsWriting)
+        {
             stream.SendNext(vInput);
             stream.SendNext(hInput);
         }
-        else {
+        else
+        {
             this.vInput = (float)stream.ReceiveNext();
             this.hInput = (float)stream.ReceiveNext();
         }
     }
 
-    private void Awake() {
-        if (photonView.IsMine){
+    private void Awake()
+    {
+        if (photonView.IsMine)
+        {
             CarControl.LocalPlayerInstance = this.gameObject;
         }
 
@@ -43,6 +54,8 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
     // Start is called before the first frame update
     void Start()
     {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+
         rigidBody = GetComponent<Rigidbody>();
 
         // Adjust center of mass vertically, to help prevent the car from rolling
@@ -50,28 +63,41 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
 
         // Find all child GameObjects that have the WheelControl script attached
         wheels = GetComponentsInChildren<WheelControl>();
+
+        if (PlayerUiPrefab != null)
+        {
+            GameObject _uiGo = Instantiate(PlayerUiPrefab);
+            _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
+        }
+        else
+        {
+            Debug.LogWarning("<Color=Red><a>Missing</a></Color> PlayerUiPrefab reference on player Prefab.", this);
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!_GameManager.Instance.GetGameStatus()){
+        if (!_GameManager.Instance.GetGameStatus())
+        {
             return;
         }
-        
-        if (photonView.IsMine){
+
+        if (photonView.IsMine)
+        {
             vInput = Input.GetAxis("Vertical");
             hInput = Input.GetAxis("Horizontal");
         }
 
-        if (isStop){
+        if (isStop)
+        {
             rigidBody.velocity = Vector3.zero;
             return;
         }
 
         // Calculate current speed in relation to the forward direction of the car
         // (this returns a negative number when traveling backwards)
-        float forwardSpeed = Vector3.Dot(transform.forward, rigidBody.velocity);
+        forwardSpeed = Vector3.Dot(transform.forward, rigidBody.velocity);
 
         // Calculate how close the car is to top speed
         // as a number from zero to one
@@ -96,7 +122,7 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
             {
                 wheel.WheelCollider.steerAngle = hInput * currentSteerRange;
             }
-            
+
             if (isAccelerating)
             {
                 // Apply torque to Wheel colliders that have "Motorized" enabled
@@ -116,12 +142,37 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
-    public void StopEngine(){
+    public void StopEngine()
+    {
         isStop = true;
         rigidBody.velocity = Vector3.zero;
     }
 
-    public void StartEngine(){
+    public void StartEngine()
+    {
         isStop = false;
+    }
+
+    public float GetSpeed()
+    {
+        return Math.Abs(this.forwardSpeed);
+    }
+
+    void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode loadingMode)
+    {
+        this.CalledOnLevelWasLoaded(scene.buildIndex);
+    }
+
+    void CalledOnLevelWasLoaded(int level)
+    {
+        GameObject _uiGo = Instantiate(this.PlayerUiPrefab);
+        _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
+    }
+
+    public override void OnDisable()
+    {
+        // Always call the base to remove callbacks
+        base.OnDisable();
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 }

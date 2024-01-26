@@ -460,6 +460,7 @@ public class _GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
         StopAllMoving();
 
+        gamePanel.transform.GetChild(2).gameObject.SetActive(false);
         gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text = "<size=200%><b>GAME OVER!</b>";
         yield return new WaitUntil(() => this.endTime != -1f && PhotonNetwork.Time - this.endTime >= 5.0f);
 

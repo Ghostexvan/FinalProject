@@ -578,6 +578,7 @@ MonoBehaviour:
   centreOfGravityOffset: -1
   vInput: 0
   hInput: 0
+  PlayerUiPrefab: {fileID: 7621302421904829030, guid: 9709b13e116b9074789654ce31fc75d5, type: 3}
 --- !u!114 &1919201435
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -594,7 +595,7 @@ MonoBehaviour:
   height: 4
   centerOffset: {x: 0, y: 0, z: 0}
   followOnStart: 0
-  smoothSpeed: 4
+  smoothSpeed: 5
 --- !u!114 &1919201436
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -612,10 +613,11 @@ MonoBehaviour:
   prefixField: -1
   Synchronization: 3
   OwnershipTransfer: 0
-  observableSearch: 0
+  observableSearch: 1
   ObservedComponents:
-  - {fileID: 1919201439}
   - {fileID: 1919201434}
+  - {fileID: 1919201439}
+  - {fileID: 2358837497944426122}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -648,15 +650,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lapInfos: []
-  lapInfoText: {fileID: 0}
-  gameInfoText: {fileID: 0}
-  currentCheckpoint: 0
   nextCheckpoint: 0
-  startCount: 0
-  distanceToNextCheckpoint: 0
-  isInWrongDirection: 0
-  timeStartGoingWrongDirection: 0
-  timeStartGoingRightDirection: 0
 --- !u!1 &3962000127133956386
 GameObject:
   m_ObjectHideFlags: 0

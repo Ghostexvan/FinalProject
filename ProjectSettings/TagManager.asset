@@ -10,6 +10,9 @@ TagManager:
   - GameInfo
   - StartingPanel
   - GamePanel
+  - SpeedUI
+  - SpeedUIText
+  - SpeedUISpeedometer
   layers:
   - Default
   - TransparentFX
