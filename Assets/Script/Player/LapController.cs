@@ -60,14 +60,14 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
     private void Awake()
     {
         // Lay cac GameObject can thiet, neu khong co -> Bao loi
-        this.lapInfoText = _GameManager.Instance.GetLapInfoText();
+        this.lapInfoText = GameManager.Instance.GetLapInfoText();
         if (this.lapInfoText == null)
         {
             Debug.LogError("Missing UI Lap Info", this);
             return;
         }
 
-        this.gameInfoText = _GameManager.Instance.GetGameInfoText();
+        this.gameInfoText = GameManager.Instance.GetGameInfoText();
         if (this.gameInfoText == null)
         {
             Debug.LogError("Missing UI Game Info", this);
@@ -175,7 +175,7 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
     // Lay checkpoint hien tai ma nguoi choi nay dat duoc
     public int GetCurrentCheckpoint()
     {
-        return this.nextCheckpoint == 0 ? _GameManager.Instance.GetTotalCheckpointNum() - 1 : this.nextCheckpoint - 1;
+        return this.nextCheckpoint == 0 ? GameManager.Instance.GetTotalCheckpointNum() - 1 : this.nextCheckpoint - 1;
     }
 
     // Lay khoang cach den checkpoint tiep theo cua nguoi choi nay
@@ -211,15 +211,15 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
             return;
         }
 
-        text.text = "<i>Pos: <pos=25%><size=200%><b>" + _GameManager.Instance.GetLocalPlayerRank() + "</b><size=100%>/" + PhotonNetwork.PlayerList.Length + "</i>\n";
+        text.text = "<i>Pos: <pos=25%><size=200%><b>" + GameManager.Instance.GetLocalPlayerRank() + "</b><size=100%>/" + PhotonNetwork.PlayerList.Length + "</i>\n";
 
         // Hien thi vong dua hien tai cua nguoi choi
-        text.text += "<i>Lap: <pos=25%><size=200%><b>" + Math.Min(lapInfos[lapInfos.Count - 1].GetLapNum(), _GameManager.Instance.GetTotalLapNum()) + "</b><size=100%>/" + _GameManager.Instance.GetTotalLapNum() + "</i><line-height=200%>\n";
+        text.text += "<i>Lap: <pos=25%><size=200%><b>" + Math.Min(lapInfos[lapInfos.Count - 1].GetLapNum(), GameManager.Instance.GetTotalLapNum()) + "</b><size=100%>/" + GameManager.Instance.GetTotalLapNum() + "</i><line-height=200%>\n";
 
         text.text += "<size=150%><i>";
 
         // Neu vong dua chua hoan thanh
-        if (lapInfos[lapInfos.Count - 1].GetTimeFinished() == 0 && lapInfos.Count <= _GameManager.Instance.GetTotalLapNum())
+        if (lapInfos[lapInfos.Count - 1].GetTimeFinished() == 0 && lapInfos.Count <= GameManager.Instance.GetTotalLapNum())
         {
             // Hien thi thoi gian tinh tu luc bat dau vong dua den hien tai
             text.text += TimeSpan.FromSeconds(PhotonNetwork.Time - lapInfos[lapInfos.Count - 1].GetTimeStarted()).ToString("mm':'ss':'ff");
@@ -228,7 +228,7 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
         else
         {
             // Hien thi thoi gian hoan thanh vong dua
-            text.text += TimeSpan.FromSeconds(lapInfos[_GameManager.Instance.GetTotalLapNum() - 1].GetTimeFinished() - lapInfos[_GameManager.Instance.GetTotalLapNum() - 1].GetTimeStarted()).ToString("mm':'ss':'ff");
+            text.text += TimeSpan.FromSeconds(lapInfos[GameManager.Instance.GetTotalLapNum() - 1].GetTimeFinished() - lapInfos[GameManager.Instance.GetTotalLapNum() - 1].GetTimeStarted()).ToString("mm':'ss':'ff");
         }
 
         text.text += "</i>";
@@ -244,20 +244,20 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
         }
 
         // Neu game chua bat dau
-        if (!_GameManager.Instance.GetGameStatus())
+        if (!GameManager.Instance.GetGameStatus())
         {
             // Debug.Log("1 " + this.distanceToNextCheckpoint);
 
             // Chi tinh khoang cach ma khong lam gi ca
             this.distanceToNextCheckpoint = Vector3.Distance(this.transform.position,
-                                                   _GameManager.Instance.GetCheckpointPosition(this.nextCheckpoint));
+                                                   GameManager.Instance.GetCheckpointPosition(this.nextCheckpoint));
             return;
         }
 
         // Tinh khoang cach moi tu nguoi choi den checkpoint tiep theo
         // Debug.Log("2 " + this.distanceToNextCheckpoint);
         float distanceCaculated = Vector3.Distance(this.transform.position,
-                                                   _GameManager.Instance.GetCheckpointPosition(this.nextCheckpoint));
+                                                   GameManager.Instance.GetCheckpointPosition(this.nextCheckpoint));
 
         // Neu nguoi choi dang reset vi tri hoac vua vao mot checkpoint moi
         if (isEnterNewCheckpoint || isResettingPosition)
@@ -304,7 +304,7 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
 
                 // Tinh lai khoang cach do vua thay doi vi tri
                 distanceCaculated = Vector3.Distance(this.transform.position,
-                                                   _GameManager.Instance.GetCheckpointPosition(this.nextCheckpoint));
+                                                   GameManager.Instance.GetCheckpointPosition(this.nextCheckpoint));
             }
             // Neu dang nghi ngo nguoi choi di nguoc chieu
             // va khoang cach moi khong doi hoac nho hon so voi khoang cach cu 
@@ -333,7 +333,7 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
 
                 // Tinh lai khoang cach do vua thay doi vi tri
                 distanceCaculated = Vector3.Distance(this.transform.position,
-                                                   _GameManager.Instance.GetCheckpointPosition(this.nextCheckpoint));
+                                                   GameManager.Instance.GetCheckpointPosition(this.nextCheckpoint));
             }
             // Neu thoi gian di dung chieu da qua thoi gian quy dinh
             else if (PhotonNetwork.Time - this.timeStartGoingRightDirection >= 3.0f)
@@ -364,7 +364,7 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
         // Neu nhu game chua duoc bat dau
         // hoac chua bat dau viec ghi nhan cac vong dua
         // -> Khong thuc hien
-        if (!_GameManager.Instance.GetGameStatus() && !startCount)
+        if (!GameManager.Instance.GetGameStatus() && !startCount)
         {
             return;
         }
@@ -373,7 +373,7 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
         if (checkpointNum == this.nextCheckpoint)
         {
             // Ghi nhan checkpoint tiep theo cho nguoi choi
-            this.nextCheckpoint = checkpointNum == _GameManager.Instance.GetTotalCheckpointNum() - 1 ?
+            this.nextCheckpoint = checkpointNum == GameManager.Instance.GetTotalCheckpointNum() - 1 ?
                                   0 :
                                   this.nextCheckpoint + 1;
 
@@ -397,18 +397,18 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
                 // Bo sung thoi gian ket thuc cho vong dua hien tai
                 lapInfos[lapInfos.Count - 1].SetTimeFinished(PhotonNetwork.Time);
 
-                // if (lapInfos.Count >= _GameManager.Instance.GetTotalLapNum())
+                // if (lapInfos.Count >= GameManager.Instance.GetTotalLapNum())
                 // {
-                //     _GameManager.Instance.SetStart();
+                //     GameManager.Instance.SetStart();
                 // }
 
                 // Them vong dua moi
                 lapInfos.Add(new LapInfo(lapInfos.Count + 1, PhotonNetwork.Time));
 
-                if (lapInfos.Count > _GameManager.Instance.GetTotalLapNum())
+                if (lapInfos.Count > GameManager.Instance.GetTotalLapNum())
                 {
                     this.startCount = false;
-                    _GameManager.Instance.SetLocalPlayerFinish(lapInfos[_GameManager.Instance.GetTotalLapNum() - 1].GetTimeFinished());
+                    GameManager.Instance.SetLocalPlayerFinish(lapInfos[GameManager.Instance.GetTotalLapNum() - 1].GetTimeFinished());
                 }
             }
         }
@@ -427,10 +427,10 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
         }
 
         // Lien tuc kiem tra trang thai hien tai cua game
-        yield return new WaitUntil(() => _GameManager.Instance.GetGameStatus() && _GameManager.Instance.GetStartTime() != -1f);
+        yield return new WaitUntil(() => GameManager.Instance.GetGameStatus() && GameManager.Instance.GetStartTime() != -1f);
 
         // Khi game bat dau, lap tuc them thong tin mot vong dua moi
-        lapInfos.Add(new LapInfo(1, _GameManager.Instance.GetStartTime()));
+        lapInfos.Add(new LapInfo(1, GameManager.Instance.GetStartTime()));
     }
 
     // Reset vi tri cua nguoi choi
@@ -471,14 +471,14 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
         // Dich chuyen nguoi choi den vi tri checkpoint gan nhat ma nguoi choi da di qua
         if (this.nextCheckpoint - 1 >= 0)
         {
-            this.transform.position = _GameManager.Instance.GetCheckpointPosition(this.nextCheckpoint - 1);
-            this.transform.rotation = _GameManager.Instance.GetCheckpointRotation(this.nextCheckpoint - 1);
+            this.transform.position = GameManager.Instance.GetCheckpointPosition(this.nextCheckpoint - 1);
+            this.transform.rotation = GameManager.Instance.GetCheckpointRotation(this.nextCheckpoint - 1);
         }
         else
         {
             int subPosition = 1 - this.nextCheckpoint;
-            this.transform.position = _GameManager.Instance.GetCheckpointPosition(_GameManager.Instance.GetTotalCheckpointNum() - subPosition);
-            this.transform.rotation = _GameManager.Instance.GetCheckpointRotation(_GameManager.Instance.GetTotalCheckpointNum() - subPosition);
+            this.transform.position = GameManager.Instance.GetCheckpointPosition(GameManager.Instance.GetTotalCheckpointNum() - subPosition);
+            this.transform.rotation = GameManager.Instance.GetCheckpointRotation(GameManager.Instance.GetTotalCheckpointNum() - subPosition);
         }
 
         // "Mo may" xe nguoi choi -> Bat dau nhan input cua nguoi choi

@@ -15,12 +15,14 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
     public float steeringRangeAtMaxSpeed = 10;
     public float centreOfGravityOffset = -1f;
 
+    public float heightOffset = 50f;
+
     WheelControl[] wheels;
     Rigidbody rigidBody;
+    GameObject minimapCamera;
 
     public float vInput = 0f,
                  hInput = 0f;
-
     private float forwardSpeed;
 
     [Tooltip("The Player's UI GameObject Prefab")]
@@ -46,6 +48,10 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
         if (photonView.IsMine)
         {
             CarControl.LocalPlayerInstance = this.gameObject;
+
+            minimapCamera = GameObject.FindGameObjectWithTag("MinimapCamera");
+            minimapCamera.transform.SetParent(this.transform);
+            minimapCamera.transform.rotation = Quaternion.Euler(90f, 0f, 90f);
         }
 
         // DontDestroyOnLoad(this.gameObject);
@@ -78,7 +84,7 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
     // Update is called once per frame
     void Update()
     {
-        if (!_GameManager.Instance.GetGameStatus())
+        if (!GameManager.Instance.GetGameStatus())
         {
             return;
         }
@@ -139,6 +145,14 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
                 wheel.WheelCollider.brakeTorque = Mathf.Abs(vInput) * brakeTorque;
                 wheel.WheelCollider.motorTorque = 0;
             }
+        }
+    }
+
+    private void LateUpdate()
+    {
+        if (photonView.IsMine)
+        {
+            minimapCamera.transform.position = this.transform.position + new Vector3(0f, heightOffset, 0f);
         }
     }
 

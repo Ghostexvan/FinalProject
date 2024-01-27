@@ -13,6 +13,7 @@ TagManager:
   - SpeedUI
   - SpeedUIText
   - SpeedUISpeedometer
+  - MinimapCamera
   layers:
   - Default
   - TransparentFX
@@ -20,7 +21,7 @@ TagManager:
   - 
   - Water
   - UI
-  - 
+  - Map
   - 
   - 
   - 

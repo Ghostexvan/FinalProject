@@ -16,76 +16,69 @@ using Photon.Pun.UtilityScripts;
 
 public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 {
-    #region Private Fields
-    private bool isStart = false;
-
-    #endregion
-
-    #region  Private Serialize Fields
-    [SerializeField]
-    private GameObject startingPanel;
-
-    [SerializeField]
-    private GameObject gamePanel;
-
+    #region Private Serializable Fields
     [SerializeField]
     private int totalLaps;
 
     [SerializeField]
-    private GameObject[] checkpointList;
+    private PlayerInfo[] playerInfos;
 
     [SerializeField]
-    private PlayerInfo[] playerInfos;
+    private double startTime = -1f;
+
+    [SerializeField]
+    private double endTime = -1f;
+
+    #endregion
+
+    #region Private Fields
+    private bool isGameStart;
+    private bool isCountdownEnd = false;
+    private GameObject startingPanel;
+    private GameObject gamePanel;
+    private GameObject[] checkpointList;
+    private GameObject[] spawnPositions;
 
     #endregion
 
     #region Public Fields
-    // Region chua cac truong public
-    // Instance cua GameManager
-    // Su dung static de co the truy cap tu bat ky dau
     public static GameManager Instance;
-
-    // Prefab tuong ung voi nguoi choi
-    [Tooltip("The prefab to use for representing the player")]
     public GameObject playerPrefab;
-
-    // chuyen ve private serialize
-    public GameObject[] spawnPositions;
-
-    // chuyen ve private
-    public int readyPlayers = 0;
 
     #endregion
 
-    #region MonoBehaviour CallBacks
-    // Region chua nhung ham CallBacks trong Unity
-
+    #region MonoBehaviour Callbacks
     private void Awake()
     {
-        // Gan gia tri Instance bang script hien tai
         if (GameManager.Instance == null)
+        {
             Instance = this;
+        }
+
+        playerInfos = new PlayerInfo[PhotonNetwork.PlayerList.Length];
+        for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+        {
+            playerInfos[i] = new PlayerInfo();
+        }
 
         gamePanel = GameObject.FindGameObjectWithTag("GamePanel");
-        if (this.gamePanel == null)
+        if (gamePanel == null)
         {
             Debug.LogError("Missing UI Game Panel", this);
             return;
         }
-        gamePanel.SetActive(false);
 
         startingPanel = GameObject.FindGameObjectWithTag("StartingPanel");
-        if (this.startingPanel == null)
+        if (startingPanel == null)
         {
             Debug.LogError("Missing UI Starting Panel", this);
             return;
         }
-        startingPanel.SetActive(true);
 
         spawnPositions = GameObject.FindGameObjectsWithTag("SpawnPosition");
         Array.Sort(spawnPositions, (a, b) =>
         {
-            return a.name.CompareTo(b.name);
+            return Int32.Parse(a.name) - Int32.Parse(b.name);
         });
 
         checkpointList = GameObject.FindGameObjectsWithTag("Checkpoint");
@@ -94,139 +87,251 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             return Int32.Parse(a.name) - Int32.Parse(b.name);
         });
 
-        playerInfos = new PlayerInfo[PhotonNetwork.PlayerList.Length];
+        gamePanel.SetActive(false);
+        startingPanel.SetActive(true);
+
+        this.startTime = -1f;
+        this.endTime = -1f;
     }
 
-    // Ham nay duoc goi dau tien sau giai doan khoi tao Object
+    // Start is called before the first frame update
     private void Start()
     {
-        // Kiem tra playerPrefab
         if (playerPrefab == null)
         {
-            Debug.LogError("<Color=Red><a>Missing</a></Color> player's prefab reference");
+            Debug.LogError("<Color=Red><a>Missing</a></Color> player's prefab");
+            return;
+        }
+
+        if (CarControl.LocalPlayerInstance == null)
+        {
+            Debug.LogFormat("Instantiating LocalPlayer (Player {0}) from {1}", PhotonNetwork.LocalPlayer.GetPlayerNumber(), SceneManager.GetActiveScene().name);
+
+            // Spawn player
+            CarControl.LocalPlayerInstance = SpawnPlayer();
+            RegisterPlayer();
         }
         else
         {
-            // Chi tao instance tuong ung voi client khi chua co
-            if (CarControl.LocalPlayerInstance == null)
-            {
-                Debug.LogFormat("Instantiating LocalPlayer from {0}", SceneManager.GetActiveScene().name);
-
-                // Tao mot instance tuong ung voi nguoi choi
-                CarControl.LocalPlayerInstance = SpawnPlayer();
-                photonView.RPC("SetPlayer", RpcTarget.All);
-                photonView.RPC("PlayerReady", RpcTarget.All);
-                
-                StartCoroutine(WaitUntilStart());
-            }
-            else
-            {
-                Debug.LogFormat("Ignoring scene load for {0}", SceneManagerHelper.ActiveSceneName);
-            }
+            Debug.LogFormat("Ignoring scene load for {0}", SceneManager.GetActiveScene().name);
         }
+
+        StartCoroutine(WaitForOtherPlayers());
+    }
+
+    // Update is called once per frame
+    private void Update()
+    {
+        // startingPanel.transform.GetChild(0).GetComponent<TMP_Text>().text = "Rank " + playerInfos[PhotonNetwork.LocalPlayer.GetPlayerNumber()].GetRank();
+        UpdatePlayerInfo();
+        RankCalculate();
     }
 
     #endregion
 
-    #region Photon Callbacks
-    // Region chua cac ham lien quan den server Photon
-    // Override ham duoc goi khi thoat khoi phong choi
+    #region MonoBehaviourPunCallbacks Callbacks
     public override void OnLeftRoom()
     {
-        // Thoat khoi phong hien tai -> Ve Scene menu chinh
         SceneManager.LoadScene(0);
     }
 
-    // Override ham duoc goi khi co nguoi choi tham gia phong
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
-        // Nhung nguoi khac ngoai tru nguoi choi dang ket noi co the nhan duoc thong bao
         Debug.LogFormat("OnPlayerEnteredRoom() {0}", newPlayer.NickName);
-
-        // Neu client hien tai la chu phong
-        if (PhotonNetwork.IsMasterClient)
-        {
-            Debug.LogFormat("OnPlayerEnteredRoom() IsMasterClient {0}", PhotonNetwork.IsMasterClient);
-        }
     }
 
-    // Override ham duoc goi khi co nguoi choi roi phong
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        // Thong bao ai la nguoi roi phong
         Debug.LogFormat("OnPlayerLeftRoom() {0}", otherPlayer.NickName);
-
-        // Neu client hien tai la chu phong
-        if (PhotonNetwork.IsMasterClient)
-        {
-            Debug.LogFormat("OnPlayerLeftRoom() IsMasterClient {0}", PhotonNetwork.IsMasterClient);
-
-            // Load man choi tuong ung voi so luong nguoi choi
-            // LoadArena();
-        }
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
-        // if (stream.IsWriting)
-        // {
-        //     stream.SendNext(this.isStart);
-        // }
-        // else
-        // {
-        //     this.isStart = (bool)stream.ReceiveNext();
-        // }
+        // throw new NotImplementedException();
+        if (PhotonNetwork.IsMasterClient)
+        {
+            for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+            {
+                stream.SendNext(i);
+                stream.SendNext(playerInfos[i].GetRank());
+                stream.SendNext(playerInfos[i].GetCurrentLap());
+                stream.SendNext(playerInfos[i].GetCurrentLap());
+                stream.SendNext(playerInfos[i].GetDistanceToNextCheckpoint());
+                stream.SendNext(playerInfos[i].GetFinishTime());
+            }
+        }
+        else if (!PhotonNetwork.IsMasterClient)
+        {
+            for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+            {
+                int index = (int)stream.ReceiveNext();
+                playerInfos[index].SetRank((int)stream.ReceiveNext());
+                playerInfos[index].UpdateInfo((int)stream.ReceiveNext(),
+                                              (int)stream.ReceiveNext(),
+                                              (float)stream.ReceiveNext());
+                playerInfos[index].SetFinishTime((double)stream.ReceiveNext());
+            }
+        }
+    }
+
+    public double GetStartTime()
+    {
+        return this.startTime;
     }
 
     #endregion
 
     #region Private Methods
-    // Region chua nhung ham private
-    // Ham xu ly su kien load man choi
-    void LoadArena()
+    private Vector3 GetSpawnPosition()
     {
-        // Kiem tra client hien tai co phai chu phong khong
+        return spawnPositions[PhotonNetwork.LocalPlayer.GetPlayerNumber()].transform.position;
+    }
+
+    private Quaternion GetSpawnRotation()
+    {
+        return spawnPositions[PhotonNetwork.LocalPlayer.GetPlayerNumber()].transform.rotation;
+    }
+
+    private GameObject SpawnPlayer()
+    {
+        return PhotonNetwork.Instantiate(playerPrefab.name, GetSpawnPosition(), GetSpawnRotation());
+    }
+
+    private void RegisterPlayer()
+    {
+        // photonView.RPC("SetPlayer", RpcTarget.All, PhotonNetwork.LocalPlayer.GetPlayerNumber(), CarControl.LocalPlayerInstance);
+        // photonView.RPC("SetPlayer", RpcTarget.All);
+        photonView.RPC("SetPlayer", RpcTarget.All);
+    }
+
+    private void UpdatePlayerInfo()
+    {
+        object[] sendData = {
+            CarControl.LocalPlayerInstance.GetComponent<LapController>().GetCurrentLapNum(),
+            CarControl.LocalPlayerInstance.GetComponent<LapController>().GetCurrentCheckpoint(),
+            CarControl.LocalPlayerInstance.GetComponent<LapController>().GetDistanceToNextCheckpoint()
+        };
+
+        if (!CarControl.LocalPlayerInstance.GetComponent<LapController>().GetCountStatus() &&
+            (int)sendData[0] == 1)
+        {
+            sendData[0] = -1;
+        }
+
+        photonView.RPC("SetPlayerInfo", RpcTarget.MasterClient, sendData as object);
+    }
+
+    private void FillRank()
+    {
         if (!PhotonNetwork.IsMasterClient)
         {
-            // Khong phai -> Bao loi
-            Debug.LogError("PhotonNetwork: Trying to load a level but we are not the master Client");
             return;
         }
 
-        Debug.LogFormat("PhotonNetwork: Loading level : {0}", PhotonNetwork.CurrentRoom.PlayerCount);
-        // Load man choi tuong ung voi so luong nguoi choi
-        PhotonNetwork.LoadLevel("Room for " + PhotonNetwork.CurrentRoom.PlayerCount);
+        int rankNum = 1;
+        foreach (PlayerInfo playerInfo in playerInfos)
+        {
+            playerInfo.SetRank(rankNum);
+            rankNum++;
+        }
     }
 
-    void ReloadArena()
+    private void RankCalculate()
     {
-        if (!PhotonNetwork.IsMasterClient)
+        if (!PhotonNetwork.IsMasterClient || !isGameStart)
         {
-            // Khong phai -> Bao loi
-            Debug.LogError("PhotonNetwork: Trying to reload a level but we are not the master Client");
             return;
         }
 
-        Debug.Log("PhotonNetwork: Reload level");
-        PhotonNetwork.LoadLevel(SceneManager.GetActiveScene().name);
+        for (int firstLoop = 0; firstLoop < PhotonNetwork.PlayerList.Length - 1; firstLoop++)
+        {
+            for (int secondLoop = firstLoop + 1; secondLoop < PhotonNetwork.PlayerList.Length; secondLoop++)
+            {
+                if (!playerInfos[firstLoop].GetPlayerStatus() || !playerInfos[secondLoop].GetPlayerStatus())
+                {
+                    continue;
+                }
+
+                if (playerInfos[firstLoop].GetCurrentLap() != playerInfos[secondLoop].GetCurrentLap())
+                {
+                    if (playerInfos[firstLoop].GetCurrentLap() > playerInfos[secondLoop].GetCurrentLap() &&
+                        playerInfos[firstLoop].GetRank() > playerInfos[secondLoop].GetRank())
+                    {
+                        Debug.LogWarning("Swap rank of player " + firstLoop + " and " + secondLoop + " due to lap");
+                        int rankSwap = playerInfos[firstLoop].GetRank();
+                        playerInfos[firstLoop].SetRank(playerInfos[secondLoop].GetRank());
+                        playerInfos[secondLoop].SetRank(rankSwap);
+                    }
+                    else if (playerInfos[firstLoop].GetCurrentLap() < playerInfos[secondLoop].GetCurrentLap() &&
+                             playerInfos[firstLoop].GetRank() < playerInfos[secondLoop].GetRank())
+                    {
+                        Debug.LogWarning("Swap rank of player " + firstLoop + " and " + secondLoop + " due to lap");
+                        int rankSwap = playerInfos[firstLoop].GetRank();
+                        playerInfos[firstLoop].SetRank(playerInfos[secondLoop].GetRank());
+                        playerInfos[secondLoop].SetRank(rankSwap);
+                    }
+
+                    continue;
+                }
+                else if (playerInfos[firstLoop].GetCurrentCheckpoint() != playerInfos[secondLoop].GetCurrentCheckpoint())
+                {
+                    if (playerInfos[firstLoop].GetCurrentCheckpoint() > playerInfos[secondLoop].GetCurrentCheckpoint() &&
+                        playerInfos[firstLoop].GetRank() > playerInfos[secondLoop].GetRank())
+                    {
+                        Debug.LogWarning("Swap rank of player " + firstLoop + " and " + secondLoop + " due to checkpoint");
+                        int rankSwap = playerInfos[firstLoop].GetRank();
+                        playerInfos[firstLoop].SetRank(playerInfos[secondLoop].GetRank());
+                        playerInfos[secondLoop].SetRank(rankSwap);
+                    }
+                    else if (playerInfos[firstLoop].GetCurrentCheckpoint() < playerInfos[secondLoop].GetCurrentCheckpoint() &&
+                             playerInfos[firstLoop].GetRank() < playerInfos[secondLoop].GetRank())
+                    {
+                        Debug.LogWarning("Swap rank of player " + firstLoop + " and " + secondLoop + " due to checkpoint");
+                        int rankSwap = playerInfos[firstLoop].GetRank();
+                        playerInfos[firstLoop].SetRank(playerInfos[secondLoop].GetRank());
+                        playerInfos[secondLoop].SetRank(rankSwap);
+                    }
+
+                    continue;
+                }
+                else
+                {
+                    if (playerInfos[firstLoop].GetDistanceToNextCheckpoint() > playerInfos[secondLoop].GetDistanceToNextCheckpoint() &&
+                        playerInfos[firstLoop].GetRank() < playerInfos[secondLoop].GetRank())
+                    {
+                        Debug.LogWarning("Swap rank of player " + firstLoop + " and " + secondLoop + " due to distance");
+                        int rankSwap = playerInfos[firstLoop].GetRank();
+                        playerInfos[firstLoop].SetRank(playerInfos[secondLoop].GetRank());
+                        playerInfos[secondLoop].SetRank(rankSwap);
+                    }
+                    else if (playerInfos[firstLoop].GetDistanceToNextCheckpoint() < playerInfos[secondLoop].GetDistanceToNextCheckpoint() &&
+                             playerInfos[firstLoop].GetRank() > playerInfos[secondLoop].GetRank())
+                    {
+                        Debug.LogWarning("Swap rank of player " + firstLoop + " and " + secondLoop + " due to distance");
+                        int rankSwap = playerInfos[firstLoop].GetRank();
+                        playerInfos[firstLoop].SetRank(playerInfos[secondLoop].GetRank());
+                        playerInfos[secondLoop].SetRank(rankSwap);
+                    }
+                }
+            }
+        }
     }
 
-    GameObject SpawnPlayer()
+    private void TurnOffWaitPanel()
     {
-        return PhotonNetwork.Instantiate(this.playerPrefab.name,
-                                          spawnPositions[PhotonNetwork.LocalPlayer.GetPlayerNumber()].transform.position,
-                                          spawnPositions[PhotonNetwork.LocalPlayer.GetPlayerNumber()].transform.rotation, 0);
+        startingPanel.SetActive(false);
+        gamePanel.SetActive(true);
+    }
+
+    private void StopAllMoving()
+    {
+        this.isGameStart = false;
+        CarControl.LocalPlayerInstance.GetComponent<CarControl>().StopEngine();
     }
 
     #endregion
 
     #region Public Methods
-    // Region chua nhung ham public
-    // Ham xu ly thoat khoi phong choi
-    public void LeaveRoom()
-    {
-        PhotonNetwork.LeaveRoom();
-    }
 
     public int GetTotalLapNum()
     {
@@ -245,7 +350,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     public bool GetGameStatus()
     {
-        return this.isStart;
+        return this.isGameStart;
     }
 
     public Vector3 GetCheckpointPosition(int index)
@@ -257,60 +362,42 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         return this.checkpointList[index].transform.rotation;
     }
-
     public int GetTotalCheckpointNum()
     {
         return this.checkpointList.Length;
     }
 
-    #endregion
-
-    #region PunRPC Methods
-    [PunRPC]
-    void TurnOffWaitPanel()
+    public void SetLocalPlayerFinish(double finishTime)
     {
-        startingPanel.SetActive(false);
-        gamePanel.SetActive(true);
+        photonView.RPC("FinishRace", RpcTarget.All, finishTime);
     }
 
-    [PunRPC]
-    public void PlayerReady()
+    public int GetLocalPlayerRank()
     {
-        this.readyPlayers += 1;
-    }
-
-    [PunRPC]
-    public void SetStart()
-    {
-        // this.isStart = true;
-        StartCoroutine(CountdownStart(3));
-    }
-
-    [PunRPC]
-    public void SetPlayer()
-    {
-        playerInfos[PhotonNetwork.LocalPlayer.GetPlayerNumber()] = new PlayerInfo();
-        // playerInfos[PhotonNetwork.LocalPlayer.GetPlayerNumber()].UpdateInfo();
+        return playerInfos[PhotonNetwork.LocalPlayer.GetPlayerNumber()].GetRank();
     }
 
     #endregion
 
-    #region  IEnumerator Methods
+    #region IEnumerator Methods
     IEnumerator WaitForOtherPlayers()
     {
-        yield return new WaitUntil(() => this.readyPlayers == PhotonNetwork.PlayerList.Length);
-        yield return new WaitForSeconds(1f);
-        photonView.RPC("TurnOffWaitPanel", RpcTarget.All);
-        photonView.RPC("SetStart", RpcTarget.All);
-        // startingPanel.SetActive(false);
-        // gamePanel.SetActive(true);
-    }
+        yield return new WaitUntil(() =>
+        {
+            int numOfPlayerReady = 0;
+            foreach (PlayerInfo playerInfo in playerInfos)
+            {
+                if (playerInfo.GetPlayerStatus())
+                {
+                    numOfPlayerReady++;
+                }
+            }
+            return numOfPlayerReady == PhotonNetwork.PlayerList.Length;
+        });
 
-    IEnumerator WaitUntilStart()
-    {
-        yield return new WaitUntil(() => isStart);
-        // startingPanel.SetActive(false);
-        // gamePanel.SetActive(true);
+        FillRank();
+        TurnOffWaitPanel();
+        StartCoroutine(CountdownStart(3));
     }
 
     IEnumerator CountdownStart(int seconds)
@@ -323,10 +410,139 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             counter--;
         }
 
-        this.isStart = true;
+        this.isGameStart = true;
         gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text = "START";
         yield return new WaitForSeconds(3);
         gamePanel.transform.GetChild(1).gameObject.SetActive(false);
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            startTime = PhotonNetwork.Time;
+            photonView.RPC("SetStartTime", RpcTarget.Others, startTime);
+        }
+
+        // StartCoroutine(CountdownEnd(3, "Test"));
+    }
+
+    IEnumerator CountdownEnd(int seconds, string playerName)
+    {
+        if (isCountdownEnd)
+        {
+            yield break;
+        }
+        isCountdownEnd = true;
+
+        gamePanel.transform.GetChild(1).gameObject.SetActive(true);
+
+        int counter = seconds;
+        while (counter > 0)
+        {
+            if (!playerInfos[PhotonNetwork.LocalPlayer.GetPlayerNumber()].GetPlayerStatus())
+            {
+                gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text = "You have finished the race!\n";
+                gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text += "Your rank: " + playerInfos[PhotonNetwork.LocalPlayer.GetPlayerNumber()].GetRank();
+                yield return new WaitForSeconds(1);
+                counter--;
+                continue;
+            }
+
+            gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text = playerName + " has finish the race!\n";
+            gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text += "Time left to finish: ";
+            gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text += counter.ToString();
+            yield return new WaitForSeconds(1);
+            counter--;
+        }
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            photonView.RPC("SetEndTime", RpcTarget.All, PhotonNetwork.Time);
+        }
+
+        StopAllMoving();
+
+        gamePanel.transform.GetChild(2).gameObject.SetActive(false);
+        gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text = "<size=200%><b>GAME OVER!</b>";
+        yield return new WaitUntil(() => this.endTime != -1f && PhotonNetwork.Time - this.endTime >= 5.0f);
+
+        gamePanel.SetActive(false);
+        startingPanel.SetActive(true);
+
+        int[] rankIndex = new int[4];
+        int currentRank = 1;
+        while (currentRank <= PhotonNetwork.PlayerList.Length)
+        {
+            for (int index = 0; index < PhotonNetwork.PlayerList.Length; index++)
+            {
+                if (playerInfos[index].GetRank() == currentRank)
+                {
+                    rankIndex[currentRank - 1] = index;
+                    currentRank++;
+                    break;
+                }
+            }
+        }
+
+        // while (true)
+        // {
+        startingPanel.transform.GetChild(0).GetComponent<TMP_Text>().text = "<align=center><size=100%><b>GAME OVER!</b></align>\n";
+        for (int index = 0; index < PhotonNetwork.PlayerList.Length; index++)
+        {
+            startingPanel.transform.GetChild(0).GetComponent<TMP_Text>().text += "<size=80%><i>" + (index + 1) + ". " + PhotonNetwork.PlayerList[rankIndex[index]].NickName
+                                                                                 + "<pos=75%>";
+            if (playerInfos[rankIndex[index]].GetFinishTime() == -1)
+            {
+                startingPanel.transform.GetChild(0).GetComponent<TMP_Text>().text += TimeSpan.FromSeconds(this.endTime - this.startTime).ToString("mm':'ss':'ff") + "\n";
+            }
+            else
+            {
+                startingPanel.transform.GetChild(0).GetComponent<TMP_Text>().text += TimeSpan.FromSeconds(playerInfos[rankIndex[index]].GetFinishTime() - this.startTime).ToString("mm':'ss':'ff") + "\n";
+            }
+        }
+        // }
+    }
+
+    #endregion
+
+    #region PunRPC Methods
+    [PunRPC]
+    public void SetPlayer(PhotonMessageInfo info)
+    {
+        playerInfos[info.Sender.GetPlayerNumber()].SetReady();
+    }
+
+    [PunRPC]
+    public void SetPlayerInfo(object[] playerInfo, PhotonMessageInfo info)
+    {
+        if (playerInfos[info.Sender.GetPlayerNumber()] == null)
+        {
+            return;
+        }
+
+        playerInfos[info.Sender.GetPlayerNumber()].UpdateInfo(
+            (int)playerInfo[0],
+            (int)playerInfo[1],
+            (float)playerInfo[2]
+        );
+    }
+
+    [PunRPC]
+    public void FinishRace(double timeFinished, PhotonMessageInfo info)
+    {
+        playerInfos[info.Sender.GetPlayerNumber()].SetReady();
+        playerInfos[info.Sender.GetPlayerNumber()].SetFinishTime(timeFinished);
+        StartCoroutine(CountdownEnd(10, info.Sender.NickName));
+    }
+
+    [PunRPC]
+    public void SetStartTime(double startTime)
+    {
+        this.startTime = startTime;
+    }
+
+    [PunRPC]
+    public void SetEndTime(double endTime)
+    {
+        this.endTime = endTime;
     }
 
     #endregion
