@@ -14,6 +14,7 @@ TagManager:
   - SpeedUIText
   - SpeedUISpeedometer
   - MinimapCamera
+  - EndPanel
   layers:
   - Default
   - TransparentFX

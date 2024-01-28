@@ -36,6 +36,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     private bool isCountdownEnd = false;
     private GameObject startingPanel;
     private GameObject gamePanel;
+    private GameObject endPanel;
     private GameObject[] checkpointList;
     private GameObject[] spawnPositions;
 
@@ -75,6 +76,13 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             return;
         }
 
+        endPanel = GameObject.FindGameObjectWithTag("EndPanel");
+        if (endPanel == null)
+        {
+            Debug.LogError("Missing UI Ending Panel", this);
+            return;
+        }
+
         spawnPositions = GameObject.FindGameObjectsWithTag("SpawnPosition");
         Array.Sort(spawnPositions, (a, b) =>
         {
@@ -87,6 +95,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             return Int32.Parse(a.name) - Int32.Parse(b.name);
         });
 
+        endPanel.SetActive(false);
         gamePanel.SetActive(false);
         startingPanel.SetActive(true);
 
@@ -194,7 +203,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     private GameObject SpawnPlayer()
     {
-        return PhotonNetwork.Instantiate(playerPrefab.name, GetSpawnPosition(), GetSpawnRotation());
+        return PhotonNetwork.Instantiate("Player/" + playerPrefab.name, GetSpawnPosition(), GetSpawnRotation());
     }
 
     private void RegisterPlayer()
@@ -329,6 +338,19 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         CarControl.LocalPlayerInstance.GetComponent<CarControl>().StopEngine();
     }
 
+    private int GetPlayerFinish()
+    {
+        int result = 0;
+        for (int index = 0; index < PhotonNetwork.PlayerList.Length; index++)
+        {
+            if (playerInfos[index].GetFinishTime() != -1f)
+            {
+                result++;
+            }
+        }
+        return result;
+    }
+
     #endregion
 
     #region Public Methods
@@ -432,15 +454,35 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         }
         isCountdownEnd = true;
 
-        gamePanel.transform.GetChild(1).gameObject.SetActive(true);
+        if (!playerInfos[PhotonNetwork.LocalPlayer.GetPlayerNumber()].GetPlayerStatus())
+        {
+            gamePanel.SetActive(false);
+            endPanel.SetActive(true);
+        }
+        else
+        {
+            gamePanel.transform.GetChild(1).gameObject.SetActive(true);
+        }
 
         int counter = seconds;
         while (counter > 0)
         {
-            if (!playerInfos[PhotonNetwork.LocalPlayer.GetPlayerNumber()].GetPlayerStatus())
+            if (this.GetPlayerFinish() == PhotonNetwork.PlayerList.Length)
             {
-                gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text = "You have finished the race!\n";
-                gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text += "Your rank: " + playerInfos[PhotonNetwork.LocalPlayer.GetPlayerNumber()].GetRank();
+                break;
+            }
+
+            if (playerInfos[PhotonNetwork.LocalPlayer.GetPlayerNumber()].GetFinishTime() != -1f)
+            {
+                if (gamePanel.activeSelf)
+                {
+                    gamePanel.SetActive(false);
+                    endPanel.SetActive(true);
+                    CarControl.LocalPlayerInstance.GetComponent<CarControl>().StopEngine();
+                }
+
+                endPanel.transform.GetChild(0).GetComponent<TMP_Text>().text = "You have finished the race!\n";
+                endPanel.transform.GetChild(0).GetComponent<TMP_Text>().text += "Your rank: " + playerInfos[PhotonNetwork.LocalPlayer.GetPlayerNumber()].GetRank();
                 yield return new WaitForSeconds(1);
                 counter--;
                 continue;
@@ -460,12 +502,10 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
         StopAllMoving();
 
-        gamePanel.transform.GetChild(2).gameObject.SetActive(false);
-        gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text = "<size=200%><b>GAME OVER!</b>";
-        yield return new WaitUntil(() => this.endTime != -1f && PhotonNetwork.Time - this.endTime >= 5.0f);
-
         gamePanel.SetActive(false);
-        startingPanel.SetActive(true);
+        endPanel.SetActive(true);
+        endPanel.transform.GetChild(0).GetComponent<TMP_Text>().text = "<size=200%><b>GAME OVER!</b>";
+        yield return new WaitUntil(() => this.endTime != -1f && PhotonNetwork.Time - this.endTime >= 5.0f);
 
         int[] rankIndex = new int[4];
         int currentRank = 1;
@@ -484,18 +524,18 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
         // while (true)
         // {
-        startingPanel.transform.GetChild(0).GetComponent<TMP_Text>().text = "<align=center><size=100%><b>GAME OVER!</b></align>\n";
+        endPanel.transform.GetChild(0).GetComponent<TMP_Text>().text = "<align=center><size=100%><b>GAME OVER!</b></align>\n";
         for (int index = 0; index < PhotonNetwork.PlayerList.Length; index++)
         {
-            startingPanel.transform.GetChild(0).GetComponent<TMP_Text>().text += "<size=80%><i>" + (index + 1) + ". " + PhotonNetwork.PlayerList[rankIndex[index]].NickName
+            endPanel.transform.GetChild(0).GetComponent<TMP_Text>().text += "<size=80%><i>" + (index + 1) + ". " + PhotonNetwork.PlayerList[rankIndex[index]].NickName
                                                                                  + "<pos=75%>";
             if (playerInfos[rankIndex[index]].GetFinishTime() == -1)
             {
-                startingPanel.transform.GetChild(0).GetComponent<TMP_Text>().text += TimeSpan.FromSeconds(this.endTime - this.startTime).ToString("mm':'ss':'ff") + "\n";
+                endPanel.transform.GetChild(0).GetComponent<TMP_Text>().text += TimeSpan.FromSeconds(this.endTime - this.startTime).ToString("mm':'ss':'ff") + "\n";
             }
             else
             {
-                startingPanel.transform.GetChild(0).GetComponent<TMP_Text>().text += TimeSpan.FromSeconds(playerInfos[rankIndex[index]].GetFinishTime() - this.startTime).ToString("mm':'ss':'ff") + "\n";
+                endPanel.transform.GetChild(0).GetComponent<TMP_Text>().text += TimeSpan.FromSeconds(playerInfos[rankIndex[index]].GetFinishTime() - this.startTime).ToString("mm':'ss':'ff") + "\n";
             }
         }
         // }

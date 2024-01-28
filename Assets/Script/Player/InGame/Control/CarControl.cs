@@ -1,5 +1,6 @@
 // Chua comment
 using System;
+using System.Globalization;
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -84,7 +85,7 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
     // Update is called once per frame
     void Update()
     {
-        if (!GameManager.Instance.GetGameStatus())
+        if (!GameManager.Instance.GetGameStatus() || isStop)
         {
             return;
         }
@@ -93,12 +94,6 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
         {
             vInput = Input.GetAxis("Vertical");
             hInput = Input.GetAxis("Horizontal");
-        }
-
-        if (isStop)
-        {
-            rigidBody.velocity = Vector3.zero;
-            return;
         }
 
         // Calculate current speed in relation to the forward direction of the car
@@ -148,6 +143,12 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
+    private void FixedUpdate() {
+        if (isStop){
+            rigidBody.velocity = Vector3.zero;
+        }
+    }
+    
     private void LateUpdate()
     {
         if (photonView.IsMine)
