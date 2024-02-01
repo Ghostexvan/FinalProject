@@ -15,6 +15,15 @@ TagManager:
   - SpeedUISpeedometer
   - MinimapCamera
   - EndPanel
+  - Launcher
+  - Lobby
+  - Room
+  - CarSelect
+  - PlayerName
+  - Options
+  - Progress
+  - RoomList
+  - PlayerList
   layers:
   - Default
   - TransparentFX

@@ -22,7 +22,8 @@ public class PlayerNameInputField : MonoBehaviour{
     #region  MonoBehaviour Callbacks
     // Region chua nhung ham CallBacks trong Unity
     // Ham nay duoc goi trong giai doan khoi tao Object
-    private void Start() {
+    
+    private void Awake() {
         string defaultName = string.Empty;
         TMP_InputField _inputField = this.GetComponent<TMP_InputField>();
 

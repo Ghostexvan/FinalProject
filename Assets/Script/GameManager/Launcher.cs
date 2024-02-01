@@ -10,6 +10,8 @@ using TMPro;
 using System.Collections;
 using UnityEngine.UI;
 using Photon.Pun.UtilityScripts;
+using System;
+using System.Collections.Generic;
 
 // Su dung class MonoBehaviourPunCallbacks nham su dung duoc cac ham cua server Photon
 public class Launcher : MonoBehaviourPunCallbacks{
@@ -61,6 +63,10 @@ public class Launcher : MonoBehaviourPunCallbacks{
 
     // Kiem tra trang thai ket noi hien tai cua client
     bool isConnecting;
+    bool isQuickplay;
+
+    private TypedLobby customLobby = new TypedLobby("customLobby", LobbyType.Default);
+    private Dictionary<string, RoomInfo> cachedRoomList = new Dictionary<string, RoomInfo>();
 
     #endregion
 
@@ -124,17 +130,21 @@ public class Launcher : MonoBehaviourPunCallbacks{
     // Override ham duoc goi khi ket noi den may chu
     public override void OnConnectedToMaster()
     {
-        Debug.Log("PUN Basics Tutorial/Launcher: OnConnectedToMaster() was called by PUN");
+        Debug.Log("PUN Basics Tutorial/Launcher: OnConnectedToMaster() was called by PUN, do nothing");
 
         // Neu client dang muon ket noi den phong choi
-        if (isConnecting){
-            // Thu ket noi den mot phong co san
-            // Neu that bai, ham OnJoinRandomFailed() se duoc goi
-            PhotonNetwork.JoinRandomRoom();
+        // if (isConnecting){
+        //     // Thu ket noi den mot phong co san
+        //     // Neu that bai, ham OnJoinRandomFailed() se duoc goi
+        //     if (isQuickplay){
+        //         PhotonNetwork.JoinRandomRoom();
+        //     } else {
+        //         PhotonNetwork.JoinLobby(customLobby);
+        //     }
 
-            // Da ket noi thanh cong -> Khong muon ket noi nua
-            isConnecting = false;
-        }
+        //     // Da ket noi thanh cong -> Khong muon ket noi nua
+        //     isConnecting = false;
+        // }
     }
 
     // Override ham duoc goi khi mat ket noi den may chu
@@ -146,6 +156,8 @@ public class Launcher : MonoBehaviourPunCallbacks{
 
         // Da thoat khoi phong -> Khong muon ket noi nua
         isConnecting = false;
+
+        cachedRoomList.Clear();
         
         Debug.LogWarning($"PUN Basics Tutorial/Launcher: OnDisconnected() was called by PUN with reason {cause}");
     }
@@ -157,7 +169,7 @@ public class Launcher : MonoBehaviourPunCallbacks{
         // Tao mot phong moi
         // Syntax: ten phong, cai dat phong
         // Cac cai dat phong: MaxPlayers - so luong nguoi choi toi da
-        PhotonNetwork.CreateRoom(null, new RoomOptions{ MaxPlayers = maxPlayersPerRoom });
+        PhotonNetwork.CreateRoom(PhotonNetwork.LocalPlayer.NickName + "'s Room", new RoomOptions{ MaxPlayers = maxPlayersPerRoom }, customLobby);
     }
 
     // Override ham duoc goi khi tham gia mot phong
@@ -172,7 +184,46 @@ public class Launcher : MonoBehaviourPunCallbacks{
         //     // Load man choi tuong ung voi 1 nguoi choi (chu phong)
         //     PhotonNetwork.LoadLevel("Cartoon Track Test");
         // }
+    }
 
+    public override void OnJoinedLobby()
+    {
+        Debug.Log("Joined lobby");
+        cachedRoomList.Clear();
+    }
+
+    public override void OnRoomListUpdate(List<RoomInfo> roomList)
+    {
+        UpdateCachedRoomList(roomList);
+    }
+
+    public override void OnLeftLobby()
+    {
+        cachedRoomList.Clear();
+    }
+
+    #endregion
+
+    #region Private Methods
+    private void UpdateCachedRoomList(List<RoomInfo> roomList){
+        for (int index = 0; index < roomList.Count; index++){
+            RoomInfo info = roomList[index];
+            if (info.RemovedFromList){
+                Debug.LogWarning("Remove room name: " + info.Name);
+                cachedRoomList.Remove(info.Name);
+            } else {
+                Debug.Log("Add room name: " + info.Name + ", current members: " + info.PlayerCount + "/" + info.MaxPlayers + ", is open: " + info.IsOpen + ", is visible: " + info.IsVisible);
+                cachedRoomList[info.Name] = info;
+            }
+        }
+    }
+
+    private void Connect(){
+        if (!PhotonNetwork.IsConnected){
+            // Co gang ket noi den server
+            isConnecting = PhotonNetwork.ConnectUsingSettings();
+            PhotonNetwork.GameVersion = gameVersion;
+        }
     }
 
     #endregion
@@ -182,7 +233,9 @@ public class Launcher : MonoBehaviourPunCallbacks{
     // Tien trinh ket noi den server:
     //      Da ket noi den server -> Tham gia mot phong ngau nhien
     //      Chua ket noi den server -> Co gang ket noi den server
-    public void Connect(){
+    public void QuickPlay(){
+        isQuickplay = true;
+
         // An Panel nhap ten va nut Play, hien thi Label trang thai
         controlPanel.SetActive(false);
         progressLabel.SetActive(true);
@@ -195,11 +248,19 @@ public class Launcher : MonoBehaviourPunCallbacks{
         }
         else {
             // Co gang ket noi den server
-            isConnecting = PhotonNetwork.ConnectUsingSettings();
-            PhotonNetwork.GameVersion = gameVersion;
+            Connect();
         }
 
         StartCoroutine(WaitUntilJoined());
+    }
+
+    public void JoinLobby(){
+        if (PhotonNetwork.IsConnected){
+            PhotonNetwork.JoinLobby(customLobby);
+        }
+        else {
+            Connect();
+        }
     }
 
     public void QuitLobby(){
@@ -224,6 +285,10 @@ public class Launcher : MonoBehaviourPunCallbacks{
         PhotonNetwork.LoadLevel(levelName);
     }
 
+    public void CreateRoom(){
+        StartCoroutine(ConnectAndCreateRoom());
+    }
+
     #endregion
 
     #region IEnumerator
@@ -232,6 +297,14 @@ public class Launcher : MonoBehaviourPunCallbacks{
         controlPanel.SetActive(false);
         progressLabel.SetActive(false);
         lobbyPanel.SetActive(true);
+        isQuickplay = false;
+    }
+
+    IEnumerator ConnectAndCreateRoom() {
+        Connect();
+        yield return new WaitUntil(() => PhotonNetwork.IsConnected);
+
+        PhotonNetwork.CreateRoom(PhotonNetwork.LocalPlayer.NickName + "'s Room", new RoomOptions{ MaxPlayers = maxPlayersPerRoom }, customLobby);
     }
 
     #endregion
