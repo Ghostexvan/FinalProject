@@ -10,6 +10,20 @@ TagManager:
   - GameInfo
   - StartingPanel
   - GamePanel
+  - SpeedUI
+  - SpeedUIText
+  - SpeedUISpeedometer
+  - MinimapCamera
+  - EndPanel
+  - Launcher
+  - Lobby
+  - Room
+  - CarSelect
+  - PlayerName
+  - Options
+  - Progress
+  - RoomList
+  - PlayerList
   layers:
   - Default
   - TransparentFX
@@ -17,7 +31,7 @@ TagManager:
   - 
   - Water
   - UI
-  - 
+  - Map
   - 
   - 
   - 
@@ -46,4 +60,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: UI
+    uniqueID: 3901942777
     locked: 0
