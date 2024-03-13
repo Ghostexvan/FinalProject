@@ -50,6 +50,7 @@ MonoBehaviour:
   startTime: 0
   endTime: -1
   playerPrefab: {fileID: 8348863334990538945, guid: 226b72320d7d9c949945df0bb5e78c74, type: 3}
+  playerData: {fileID: 11400000, guid: f57b58dc9e910ce458f98a2d529793e7, type: 2}
 --- !u!114 &7365841739972006254
 MonoBehaviour:
   m_ObjectHideFlags: 0
