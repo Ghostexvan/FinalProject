@@ -45,6 +45,12 @@ public class LauncherManager : MonoBehaviourPunCallbacks
     [SerializeField]
     private GameObject playerListObject;
 
+    [SerializeField]
+    private LocalPlayerData localPlayerData;
+
+    [SerializeField]
+    private GameObject spawnPosition;
+
     #endregion
 
     #region Private Fields
@@ -53,6 +59,7 @@ public class LauncherManager : MonoBehaviourPunCallbacks
     private TypedLobby customLobby = new TypedLobby("customLobby", LobbyType.Default);
     private Dictionary<string, RoomInfo> cachedRoomList = new Dictionary<string, RoomInfo>();
     private Dictionary<string, GameObject> cachedRoomObjectList = new Dictionary<string, GameObject>();
+    private GameObject playerModel;
 
     #endregion
 
@@ -124,19 +131,37 @@ public class LauncherManager : MonoBehaviourPunCallbacks
         {
             Debug.LogError("Cannot found Player List's Panel!", this);
         }
+
+        if (localPlayerData == null)
+        {
+            Debug.LogError("Missing local player data!", this);
+        }
+
+        spawnPosition = GameObject.FindGameObjectWithTag("SpawnPosition");
+        if (spawnPosition == null)
+        {
+            Debug.LogError("Cannot found Spawn Position's Object", this);
+        }
+
+        playerModel = Instantiate(localPlayerData.GetPlayerPrefab(), spawnPosition.transform.position + new Vector3(0f, 0.5f, 0f) , spawnPosition.transform.rotation);
+        Destroy(playerModel.GetComponent<LapController>());
+        Destroy(playerModel.GetComponent<CarControl>());
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        if (PlayerPrefs.HasKey("PlayerName")){
+        if (PlayerPrefs.HasKey("PlayerName"))
+        {
             launcherPanel.SetActive(true);
             playerNamePanel.SetActive(false);
-        } else {
+        }
+        else
+        {
             launcherPanel.SetActive(false);
             playerNamePanel.SetActive(true);
         }
-        
+
         lobbyPanel.SetActive(false);
         roomPanel.SetActive(false);
         selectPanel.SetActive(false);
@@ -250,17 +275,21 @@ public class LauncherManager : MonoBehaviourPunCallbacks
                 Debug.LogWarning("Remove room name: " + info.Name);
                 cachedRoomList.Remove(info.Name);
 
-                if (cachedRoomObjectList.ContainsKey(info.Name)){
+                if (cachedRoomObjectList.ContainsKey(info.Name))
+                {
                     Destroy(cachedRoomObjectList[info.Name]);
                 }
-                
+
                 cachedRoomObjectList.Remove(info.Name);
             }
             else
             {
                 Debug.Log("Add room name: " + info.Name + ", current members: " + info.PlayerCount + "/" + info.MaxPlayers + ", is open: " + info.IsOpen + ", is visible: " + info.IsVisible);
                 cachedRoomList[info.Name] = info;
-                cachedRoomObjectList[info.Name] = Instantiate(roomInfoObject, roomListContent.transform);
+                if (!cachedRoomObjectList.ContainsKey(info.Name) || cachedRoomObjectList[info.Name] == null)
+                {
+                    cachedRoomObjectList[info.Name] = Instantiate(roomInfoObject, roomListContent.transform);
+                }
                 cachedRoomObjectList[info.Name].transform.GetChild(0).GetComponent<TMP_Text>().text = info.CustomProperties["ROOM_NAME"].ToString();
                 cachedRoomObjectList[info.Name].transform.GetChild(1).GetComponent<TMP_Text>().text = info.IsOpen && info.PlayerCount < info.MaxPlayers ? "Open" : "Closed";
                 cachedRoomObjectList[info.Name].transform.GetChild(2).GetComponent<TMP_Text>().text = "Number of player in room: " + info.PlayerCount + "/" + info.MaxPlayers;
@@ -293,6 +322,8 @@ public class LauncherManager : MonoBehaviourPunCallbacks
     public void EnterCarSelect()
     {
         Debug.LogWarning("Car Select Panel still in development!");
+        launcherPanel.SetActive(false);
+        selectPanel.SetActive(true);
     }
 
     public void EnterSetPlayerName()
@@ -416,7 +447,7 @@ public class LauncherManager : MonoBehaviourPunCallbacks
 
         Debug.Log("Player number " + player.GetPlayerNumber() + ": " + player.NickName);
         playerListObject.transform.GetChild(player.GetPlayerNumber()).transform.GetChild(0).GetComponent<TMP_Text>().text = player.NickName;
-        playerListObject.transform.GetChild(player.GetPlayerNumber()).transform.GetChild(1).GetComponent<Toggle>().isOn = player.CustomProperties.ContainsKey("Ready")?
+        playerListObject.transform.GetChild(player.GetPlayerNumber()).transform.GetChild(1).GetComponent<Toggle>().isOn = player.CustomProperties.ContainsKey("Ready") ?
                                                                                                                           (bool)player.CustomProperties["Ready"] :
                                                                                                                           false;
     }

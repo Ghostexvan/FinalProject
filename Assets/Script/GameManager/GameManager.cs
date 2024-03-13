@@ -45,6 +45,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     #region Public Fields
     public static GameManager Instance;
     public GameObject playerPrefab;
+    public LocalPlayerData playerData;
 
     #endregion
 
@@ -203,7 +204,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     private GameObject SpawnPlayer()
     {
-        return PhotonNetwork.Instantiate("Player/" + playerPrefab.name, GetSpawnPosition(), GetSpawnRotation());
+        return PhotonNetwork.Instantiate("Player/" + playerData.GetPlayerPrefabName(), GetSpawnPosition(), GetSpawnRotation());
     }
 
     private void RegisterPlayer()
