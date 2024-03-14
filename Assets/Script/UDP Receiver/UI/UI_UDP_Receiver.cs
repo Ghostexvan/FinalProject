@@ -2,14 +2,11 @@
 // Chua don dep
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class UI_UDP_Receiver : MonoBehaviour
 {
@@ -17,6 +14,7 @@ public class UI_UDP_Receiver : MonoBehaviour
     private Thread receiveThread;
     private UdpClient client;
     private string dataReceived = "";
+    private string currentAction = null;
 
     #endregion
 
@@ -45,9 +43,6 @@ public class UI_UDP_Receiver : MonoBehaviour
     [SerializeField]
     private float mouseSpeed = 1.0f;
 
-    [SerializeField]
-    private float mouseDistanceSensity = 5.0f;
-
     #endregion
 
     #region Public Readonly Fields
@@ -69,7 +64,26 @@ public class UI_UDP_Receiver : MonoBehaviour
     void Update()
     {
         PreprocessingReceivedData();
-        SetMousePosition();
+
+        SendingCommand();
+    }
+
+    private void OnDestroy() {
+        if (client != null) {
+            client.Close();
+            client = null;
+        }
+
+        if (receiveThread.IsAlive || receiveThread != null){
+            if (receiveThread.Join(100)){
+                Debug.Log("[UDP INFO] Thread closed");
+            } else {
+                Debug.LogWarning("[UDP WARNING] Thread did not close, time out");
+                receiveThread.Abort();
+            }
+        }
+
+        receiveThread = null;
     }
 
     #endregion
@@ -183,17 +197,21 @@ public class UI_UDP_Receiver : MonoBehaviour
         pointerCoordinate *= new Vector2(Screen.width, Screen.height);
     }
 
-    private void SetMousePosition(){
-        if (actionCommand != "Mouse")
-            return;
+    private void SendingCommand() {
+        switch (actionCommand){
+            case "Mouse":
+                currentAction = "Mouse";
+                MouseController.Instance.SetMousePosition(pointerCoordinate);
+                break;
+            case "Click":
+                if (currentAction == "Click") {
+                    break;
+                }
 
-        Debug.Log("[MOUSE INFO] Current mouse poisiton: " + Mouse.current.position.ReadValue());
-        Debug.Log("[MOUSE INFO] Target position: " + pointerCoordinate);
-
-        if (Vector2.Distance(Mouse.current.position.ReadValue(), pointerCoordinate) > mouseDistanceSensity)
-            Mouse.current.WarpCursorPosition(
-                pointerCoordinate
-            );
+                currentAction = "Click";
+                MouseController.Instance.Click();
+                break;
+        }
     }
 
     #endregion
