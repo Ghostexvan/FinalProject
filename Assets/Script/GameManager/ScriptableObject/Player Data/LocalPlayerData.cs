@@ -4,25 +4,36 @@ using UnityEngine;
 public class LocalPlayerData : ScriptableObject
 {
     [SerializeField]
-    private Cars cars;
-    [SerializeField]
-    private int carIndex;
-    [SerializeField]
-    private int variantIndex;
+    private GameObject playerPrefab;
 
-    public void SetCarIndex(int index) {
-        this.carIndex = index;
-    }
+    [SerializeField]
+    private int playerCarIndex;
 
-    public void SetVariantIndex(int index) {
-        this.variantIndex = index;
-    }
+    [SerializeField]
+    private int playerVariantIndex;
 
     public string GetPlayerPrefabName() {
-        return this.cars.name;
+        return this.playerPrefab.name;
     }
 
     public GameObject GetPlayerPrefab() {
-        return this.cars.GetCarPrefab(carIndex);
+        return this.playerPrefab;
+    }
+
+    public int GetPlayerCarIndex(){
+        return this.playerCarIndex;
+    }
+
+    public int GetPlayerVariantIndex(){
+        return this.playerVariantIndex;
+    }
+
+    public void SetPlayerPrefab(GameObject carPrefab){
+        this.playerPrefab = carPrefab;
+    }
+
+    public void SetPlayerIndex(int carIndex, int variantIndex){
+        this.playerCarIndex = carIndex;
+        this.playerVariantIndex = variantIndex;
     }
 }

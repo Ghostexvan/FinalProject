@@ -58,7 +58,7 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
     // Region chua nhung ham CallBacks trong Unity
     // Ham nay duoc goi trong giai doan khoi tao Object
     private void Awake()
-    {
+    {       
         // Lay cac GameObject can thiet, neu khong co -> Bao loi
         this.lapInfoText = GameManager.Instance.GetLapInfoText();
         if (this.lapInfoText == null)

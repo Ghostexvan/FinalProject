@@ -13,6 +13,14 @@ MonoBehaviour:
   m_Name: Cars
   m_EditorClassIdentifier: 
   cars:
-  - carName: Race Car
-    carPrefab: {fileID: 8348863334990538945, guid: 226b72320d7d9c949945df0bb5e78c74, type: 3}
+  - carName: Classic
+    carDescription: A great starting car for any new racer. It's easy to handle and
+      has a good top speed. With its classic design, it's sure to turn heads on the
+      track.
     carVariants: {fileID: 11400000, guid: 99d11639a3f71b343a080920a56f5106, type: 2}
+  - carName: Super Car
+    carDescription: You thought this is Super Car? Sike, this is just Classic Car!
+    carVariants: {fileID: 11400000, guid: 831e18c764db054499d26e96c1c116f0, type: 2}
+  - carName: Hoshilo
+    carDescription: This supposed to be Hoshino from Blue Archive.
+    carVariants: {fileID: 11400000, guid: 831e18c764db054499d26e96c1c116f0, type: 2}

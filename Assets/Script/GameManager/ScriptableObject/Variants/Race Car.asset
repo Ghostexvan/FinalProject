@@ -12,14 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83142b24ec4f5634aba19510b49fd5aa, type: 3}
   m_Name: Race Car
   m_EditorClassIdentifier: 
-  variants:
-  - variantName: Blue
-    variantMaterial: {fileID: 2100000, guid: d2344366b80fe3d4f886ec412e0174fa, type: 2}
-  - variantName: Red
-    variantMaterial: {fileID: 2100000, guid: c4c2ee3e832cffd48bb9d156c2b21376, type: 2}
-  - variantName: Purple
-    variantMaterial: {fileID: 2100000, guid: 74196cf5d503c14488ae1ef1dbc6c9a4, type: 2}
-  - variantName: Gray
-    variantMaterial: {fileID: 2100000, guid: 104696f8b5f23d24586d858b68916bdc, type: 2}
-  - variantName: Yellow
-    variantMaterial: {fileID: 2100000, guid: 07f44fe3e9c462146a7769b976c50ec4, type: 2}
+  variants_:
+  - variantPrefab: {fileID: 4333421045147879027, guid: e4bfe4b37c4873f439654db37d621df6, type: 3}
+    variantColor:
+      serializedVersion: 2
+      rgba: 4294911744
+  - variantPrefab: {fileID: 4701226168292422959, guid: b05994879e32f324fab5799e64310b1f, type: 3}
+    variantColor:
+      serializedVersion: 2
+      rgba: 4285953654
+  - variantPrefab: {fileID: 934597137127689633, guid: 123ad11879c0aac4dae2e7182aaf8304, type: 3}
+    variantColor:
+      serializedVersion: 2
+      rgba: 4293525759
+  - variantPrefab: {fileID: 5307249498348523305, guid: 4c510902a382b7044aa8e93641784c82, type: 3}
+    variantColor:
+      serializedVersion: 2
+      rgba: 4278190335
