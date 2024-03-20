@@ -6,19 +6,23 @@ using UnityEngine;
 public class CarVariants : ScriptableObject
 {
     [SerializeField]
-    private List<Variant> variants = new List<Variant>();
+    private List<Variant> variants_ = new List<Variant>();
 
-    public Material GetVariantMaterial(int index){
-        return variants[index].variantMaterial;
+    public GameObject GetCarPrefab(int index){
+        return this.variants_[index].variantPrefab;
     }
 
-    public string GetVariantName(int index){
-        return variants[index].variantName;
+    public int GetTotalVariants(){
+        return this.variants_.Count;
+    }
+
+    public Color32 GetVariantColor(int index){
+        return this.variants_[index].variantColor;
     }
 }
 
 [Serializable]
-public struct Variant {
-    public string variantName;
-    public Material variantMaterial;
+public struct Variant{
+    public GameObject variantPrefab;
+    public Color32 variantColor;
 }

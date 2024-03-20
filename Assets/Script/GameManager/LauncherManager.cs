@@ -49,7 +49,13 @@ public class LauncherManager : MonoBehaviourPunCallbacks
     private LocalPlayerData localPlayerData;
 
     [SerializeField]
+    private Cars carsPool;
+
+    [SerializeField]
     private GameObject spawnPosition;
+
+    [SerializeField]
+    private List<GameObject> historyPanel = new List<GameObject>();
 
     #endregion
 
@@ -137,20 +143,35 @@ public class LauncherManager : MonoBehaviourPunCallbacks
             Debug.LogError("Missing local player data!", this);
         }
 
+        if (PlayerPrefs.HasKey("Player Car Index") && PlayerPrefs.HasKey("Player Variant Index")){
+            localPlayerData.SetPlayerIndex(
+                PlayerPrefs.GetInt("Player Car Index"),
+                PlayerPrefs.GetInt("Player Variant Index")
+            );
+        } else {
+            localPlayerData.SetPlayerIndex(0, 0);
+        }
+
         spawnPosition = GameObject.FindGameObjectWithTag("SpawnPosition");
         if (spawnPosition == null)
         {
             Debug.LogError("Cannot found Spawn Position's Object", this);
         }
 
-        playerModel = Instantiate(localPlayerData.GetPlayerPrefab(), spawnPosition.transform.position + new Vector3(0f, 0.5f, 0f) , spawnPosition.transform.rotation);
-        Destroy(playerModel.GetComponent<LapController>());
-        Destroy(playerModel.GetComponent<CarControl>());
+        SpawnCarModel(
+            carsPool.GetCarPrefab(
+                localPlayerData.GetPlayerCarIndex(), 
+                localPlayerData.GetPlayerVariantIndex()
+            )
+        );
+        // playerModel = Instantiate(localPlayerData.GetPlayerPrefab(), spawnPosition.transform.position + new Vector3(0f, 0.5f, 0f) , spawnPosition.transform.rotation);
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        historyPanel.Add(launcherPanel);
+
         if (PlayerPrefs.HasKey("PlayerName"))
         {
             launcherPanel.SetActive(true);
@@ -160,6 +181,7 @@ public class LauncherManager : MonoBehaviourPunCallbacks
         {
             launcherPanel.SetActive(false);
             playerNamePanel.SetActive(true);
+            historyPanel.Add(playerNamePanel);
         }
 
         lobbyPanel.SetActive(false);
@@ -317,13 +339,16 @@ public class LauncherManager : MonoBehaviourPunCallbacks
         {
             Connect();
         }
+
+        historyPanel.Add(lobbyPanel);
     }
 
     public void EnterCarSelect()
     {
-        Debug.LogWarning("Car Select Panel still in development!");
         launcherPanel.SetActive(false);
         selectPanel.SetActive(true);
+
+        historyPanel.Add(selectPanel);
     }
 
     public void EnterSetPlayerName()
@@ -331,11 +356,15 @@ public class LauncherManager : MonoBehaviourPunCallbacks
         Debug.LogWarning("Player Name Panel still in development!");
         launcherPanel.SetActive(false);
         playerNamePanel.SetActive(true);
+
+        historyPanel.Add(playerNamePanel);
     }
 
     public void EnterOptions()
     {
         Debug.LogWarning("Options Panel still in development!");
+
+        // historyPanel.Add(optionsPanel);
     }
 
     public void CreateRoom()
@@ -361,6 +390,8 @@ public class LauncherManager : MonoBehaviourPunCallbacks
         progressPanel.SetActive(true);
         lobbyPanel.SetActive(false);
 
+        historyPanel.Add(roomPanel);
+
         StartCoroutine(WaitUntilInsideRoom());
     }
 
@@ -370,6 +401,8 @@ public class LauncherManager : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinRoom(roomCode);
         progressPanel.SetActive(true);
         lobbyPanel.SetActive(false);
+
+        historyPanel.Add(roomPanel);
 
         StartCoroutine(WaitUntilInsideRoom());
     }
@@ -423,6 +456,38 @@ public class LauncherManager : MonoBehaviourPunCallbacks
         {
             PhotonNetwork.LoadLevel(TrackSelection.Instance.GetTrackName());
         }
+    }
+
+    public LocalPlayerData GetLocalPlayerData(){
+        return this.localPlayerData;
+    }
+
+    public Cars GetCarsPool(){
+        return this.carsPool;
+    }
+
+    public void SpawnCarModel(GameObject car){
+        if (this.playerModel != null) {
+            Destroy(this.playerModel);
+        }
+
+        this.playerModel = Instantiate(car, spawnPosition.transform.position + new Vector3(0f, 0.5f, 0f) , spawnPosition.transform.rotation);
+    }
+
+    public void Back(){
+        if (historyPanel.Count == 1)
+            return;
+
+        if (historyPanel[historyPanel.Count - 1] == roomPanel) {
+            PhotonNetwork.LeaveRoom();
+        } else if (historyPanel[historyPanel.Count - 1] == lobbyPanel){
+            PhotonNetwork.LeaveLobby();
+            PhotonNetwork.Disconnect();
+        }
+
+        historyPanel[historyPanel.Count - 1].SetActive(false);
+        historyPanel.RemoveAt(historyPanel.Count - 1);
+        historyPanel[historyPanel.Count - 1].SetActive(true);
     }
 
     #endregion

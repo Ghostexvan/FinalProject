@@ -14,18 +14,19 @@ public class BackButton : MonoBehaviour
 
     public void OnClick()
     {
-        if (isInRoom)
-        {
-            PhotonNetwork.LeaveRoom();
-        }
+        // if (isInRoom)
+        // {
+        //     PhotonNetwork.LeaveRoom();
+        // }
 
-        if (isInLobby)
-        {
-            PhotonNetwork.LeaveLobby();
-            PhotonNetwork.Disconnect();
-        }
+        // if (isInLobby)
+        // {
+        //     PhotonNetwork.LeaveLobby();
+        //     PhotonNetwork.Disconnect();
+        // }
 
-        destinatedPanel.SetActive(true);
-        this.transform.parent.transform.gameObject.SetActive(false);
+        // destinatedPanel.SetActive(true);
+        // this.transform.parent.transform.gameObject.SetActive(false);
+        LauncherManager.Instance.Back();
     }
 }
