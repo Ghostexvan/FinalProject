@@ -96,6 +96,9 @@ public class CarControlNormal : MonoBehaviourPunCallbacks, IPunObservable
     public float reverseRateUDP = 0.05f;
     #endregion
 
+    // This is used to test the vInput
+    private float old_v_input;
+
 
     // Currently unrelated right now, will be used for Photon after to send vInput and hInput to the main server
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
@@ -104,11 +107,17 @@ public class CarControlNormal : MonoBehaviourPunCallbacks, IPunObservable
         {
             stream.SendNext(vInput);
             stream.SendNext(hInput);
+
+            //stream.SendNext(isBrakeCalled);
+            //stream.SendNext(brakeVal);
         }
         else
         {
             this.vInput = (float)stream.ReceiveNext();
             this.hInput = (float)stream.ReceiveNext();
+
+            //this.isBrakeCalled = (bool)stream.ReceiveNext();
+            //this.brakeVal = (float)stream.ReceiveNext();
         }
     }
 
@@ -126,6 +135,8 @@ public class CarControlNormal : MonoBehaviourPunCallbacks, IPunObservable
         // DontDestroyOnLoad(this.gameObject);
 
         udpsock = GameObject.Find("Claiomh").GetComponent<UDPSocketTest1>();
+
+        old_v_input = 0f;
     }
 
     // Start is called before the first frame update
@@ -155,6 +166,20 @@ public class CarControlNormal : MonoBehaviourPunCallbacks, IPunObservable
         //isUDPActive = false;
         if (udpsock != null)
             isUDPActive = udpsock.isUDPActive;
+        else
+        {
+            Debug.LogWarning("! Either you're not the local player or there is no UDPSocketTest_Control components found anywhere. !");
+            if (photonView.IsMine)
+            {
+                Debug.LogWarning("! UDPSocketTest_Control component is not found !");
+            }
+            else
+            {
+                Debug.LogWarning("! Not local player !");
+            }
+        }
+
+
         //if (isUDPActive)
         isKeyboardInput = false;
 
@@ -212,6 +237,11 @@ public class CarControlNormal : MonoBehaviourPunCallbacks, IPunObservable
                     if (isBrakeCalled == true) isBrakeCalled = false;
                     if (brakeVal > 0) brakeVal = 0.0f;
                 }
+                if (old_v_input != vInput)
+                    print("V-INPUT: " + vInput);
+
+
+                old_v_input = vInput;
             }
 
 
@@ -234,6 +264,12 @@ public class CarControlNormal : MonoBehaviourPunCallbacks, IPunObservable
                 if (isBrakeCalled == true) isBrakeCalled = false;
                 if (brakeVal > 0) brakeVal = 0.0f;
             }
+
+            if (old_v_input != vInput)
+                print("V-INPUT: " + vInput);
+
+
+            old_v_input = vInput;
         }
 
            
@@ -271,7 +307,7 @@ public class CarControlNormal : MonoBehaviourPunCallbacks, IPunObservable
         //}
     }
 
-    // This is used for normal keyboard inputs
+    // This is used for normal keyboard inputs (and UDP, since we are passing 4 of these values in)
     public void CarEngine(float vInput, float hInput, bool brakeCall, float brakeVal)
     {
         // Calculate current speed in relation to the forward direction of the car

@@ -24,6 +24,10 @@ TagManager:
   - Progress
   - RoomList
   - PlayerList
+  - UDPLabelText
+  - UDPAngleText
+  - UDPHInputText
+  - UDPVInputText
   layers:
   - Default
   - TransparentFX

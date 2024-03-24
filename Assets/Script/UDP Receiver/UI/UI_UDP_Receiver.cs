@@ -68,46 +68,65 @@ public class UI_UDP_Receiver : MonoBehaviour
 
     #endregion
 
+    #region Public Fields
+    [Header("Important UDP values")]
+    [Tooltip("Flag to check if user wanted to enable UDP or not. This is mostly for debugging.")]
+    public bool isUDPActive = true;
+    #endregion
+
     #region Monobehaviour Callbacks
+    private void Awake()
+    {
+        
+    }
+
     // Start is called before the first frame update
     void Start()
     {
         pointerCoordinate = defaultPointerCoordinate;
         actionCommand = defaultActionCommand;
 
-        InitiateUDPConnection();
+        if (isUDPActive)
+            InitiateUDPConnection();
     }
 
     // Update is called once per frame
     void Update()
     {
-        PreprocessingReceivedData();
+        if (isUDPActive)
+        {
+            PreprocessingReceivedData();
 
-        SendingCommand();
+            SendingCommand();
+        }
     }
 
     private void OnDestroy()
     {
-        if (client != null)
+        if (isUDPActive)
         {
-            client.Close();
-            client = null;
+            if (client != null)
+            {
+                client.Close();
+                client = null;
+            }
+
+            if (receiveThread.IsAlive || receiveThread != null)
+            {
+                if (receiveThread.Join(100))
+                {
+                    Debug.Log("[UDP INFO] (UI) Thread closed");
+                }
+                else
+                {
+                    Debug.LogWarning("[UDP WARNING] Thread did not close, time out");
+                    receiveThread.Abort();
+                }
+            }
+
+            receiveThread = null;
         }
 
-        if (receiveThread.IsAlive || receiveThread != null)
-        {
-            if (receiveThread.Join(100))
-            {
-                Debug.Log("[UDP INFO] Thread closed");
-            }
-            else
-            {
-                Debug.LogWarning("[UDP WARNING] Thread did not close, time out");
-                receiveThread.Abort();
-            }
-        }
-
-        receiveThread = null;
     }
 
     #endregion
@@ -115,7 +134,7 @@ public class UI_UDP_Receiver : MonoBehaviour
     #region Private Methods
     private void InitiateUDPConnection()
     {
-        Debug.LogWarning("[UDP INFO] Inititate UDP connection...");
+        Debug.LogWarning("[UDP INFO] Inititate UDP (UI) connection...");
 
         receiveThread = new Thread(new ThreadStart(ReceiveData))
         {
@@ -138,7 +157,18 @@ public class UI_UDP_Receiver : MonoBehaviour
             {
                 try
                 {
-                    IPEndPoint anyIP = new IPEndPoint(IPAddress.Any, port);
+                    //// !!! IMPORTANT !!!
+                    //// Using IPAddress.any will lead to us receiving packets from Photon's servers instead.
+                    // Since they also have ports 27001 and 27002. So instead of using 0.0.0.0, we'll only
+                    // be using 127.0.0.1 (our local IP).
+                    // https://doc.photonengine.com/server/current/operations/tcp-and-udp-port-numbers
+                    // Reason being: We only wanted our UDP data to be sent from our Python app to here in order
+                    // for our scripts to process our UDP Data into inputs. Since 0.0.0.0 takes any IPs, it can literally
+                    // get UDP data from Photon Master Servers and Game Servers themselves, which we don't want.
+                    //IPEndPoint anyIP = new IPEndPoint(IPAddress.Any, port);
+
+                    IPAddress ip = IPAddress.Parse("127.0.0.1");
+                    IPEndPoint anyIP = new IPEndPoint(ip, port);
                     byte[] buffer = client.Receive(ref anyIP);
 
                     Debug.Log("[INFO] UDP buffer length received: " + buffer.Length);
