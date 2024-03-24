@@ -1,4 +1,4 @@
-// Chua comment
+﻿// Chua comment
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -320,7 +320,8 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
             }
 
             // Neu thoi gian di nguoc chieu da qua thoi gian quy dinh
-            if (PhotonNetwork.Time - this.timeStartGoingWrongDirection >= 5.0f)
+            // (Tăng thời gian đi ngược chiều từ 5s --> 7s)
+            if (PhotonNetwork.Time - this.timeStartGoingWrongDirection >= 7.0f)
             {
                 // Reset vi tri nguoi choi
                 StartCoroutine(ResetPosition(3.0f));

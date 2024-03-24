@@ -21,6 +21,9 @@ public class SpeedUI : MonoBehaviour
         if (clockSpeed == null){
             Debug.LogError("Missing Speed UI Clock", this);
         }
+
+        //Debug.LogWarning("Speed Text: " + speedText.transform.gameObject.activeSelf + " - " + speedText.gameObject.activeInHierarchy);
+        //Debug.LogWarning("Clock UI: " + clockSpeed.activeSelf + " - " + clockSpeed.activeInHierarchy);
     }
 
     // Start is called before the first frame update

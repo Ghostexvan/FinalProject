@@ -7,6 +7,18 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1919201435, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
+      propertyPath: height
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1919201435, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
+      propertyPath: distance
+      value: 5.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1919201435, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
+      propertyPath: centerOffset.y
+      value: 1.2
+      objectReference: {fileID: 0}
     - target: {fileID: 1919201436, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: sceneViewId
       value: 0

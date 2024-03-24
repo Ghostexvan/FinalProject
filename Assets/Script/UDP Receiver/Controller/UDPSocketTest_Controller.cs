@@ -8,10 +8,11 @@ using System.Threading;
 using TMPro;
 using UnityEngine;
 using System.Globalization;
-using Unity.VisualScripting;
+using System.Drawing;
+using Photon.Pun;
 
 // This contains both UDP and changing Gameplay UI
-public class UDPSocketTest1 : MonoBehaviour
+public class UDPSocketTest_Controller : MonoBehaviour
 {
     // I'm not really a "regions" type of guy but I do want the code format to be uniform
     // (I also reused some of the code snippets from my old projects)
@@ -42,6 +43,10 @@ public class UDPSocketTest1 : MonoBehaviour
     public TMP_Text angleText;
     public TMP_Text rotationText;
     public TMP_Text vInputText;
+
+    // Added braking UI
+    public TMP_Text isBrakeCalledText;
+    public TMP_Text brakeValText;
     #endregion
 
 
@@ -74,7 +79,7 @@ public class UDPSocketTest1 : MonoBehaviour
     public readonly int port = 27001;
     #endregion
 
-    public ConvertedUDPData_ cudInput;
+    public Converted_UDP_Data cudInput;
 
     [Header("Important UDP values")]
     [Tooltip("Flag to check if user wanted to enable UDP or not")]
@@ -83,7 +88,12 @@ public class UDPSocketTest1 : MonoBehaviour
     private float old_v_inp;
 
     [Tooltip("This is to access the CarControl script, mainly to get the brakingRate for use in BRAKE and BRAKEHOLD labels")]
-    private CarControlNormal ccn;
+    private CarControl cctrl;
+
+    [Tooltip("Flag to check if DEBUG mode is on.\n" +
+        "This will enable UDP's Label, Steering Angle, Rotation and V-INPUT display on the game's UI.")]
+    public bool isDebugMode = true;
+
 
     /// <summary>
     /// The 3 rates, related to UDP car controlling. See more details in CarControlNormal script
@@ -93,19 +103,82 @@ public class UDPSocketTest1 : MonoBehaviour
 
     private void Awake()
     {
-        labelText = GameObject.Find("Label (TMP)").GetComponent<TMP_Text>();
-        angleText = GameObject.Find("Angle (TMP)").GetComponent<TMP_Text>();
-        rotationText = GameObject.Find("Rotation (TMP)").GetComponent<TMP_Text>();
-        vInputText = GameObject.Find("V-INPUT (TMP)").GetComponent<TMP_Text>();
+        //// Ta sẽ trỏ thẳng các component này qua Inspector
+        /* LÝ DO TRỎ QUA INSPECTOR thay vì cho script này tự trỏ:
+         * - Trong trường hợp của SpeedUI.cs: Vì SpeedUI là con của GamePanel, và GamePanel lúc mới vào Scene thì nó INACTIVE.
+         * --> SpeedUI.cs trong SpeedUI sẽ KHÔNG gọi Awake khi GamePanel (parent) của nó INACTIVE, dù cho activeSelf của SpeedUI là True.
+         * - Khi StartingPanel INACTIVE và GamePanel ACTIVE, thì các con của GamePanel sẽ có activeInHierarchy = True.
+         * Lúc này tụi nó sẽ được gọi Awake; Awake của SpeedUI.cs dùng để FindObjWithTag(), và hàm này cchỉ hoạt động khi GameObject
+         * được trỏ tới là active. Vì con của SpeedUI lúc này cũng có activeInHierarchy = True nên GameObj.FindWithTag nó hoạt động như bình thường.
+         * TL:DR: GameObject.Find hoặc FindObjWith... chỉ hoạt động khi GameObject được trỏ tới có activeinHierarchy = True.
+         * Và script trong con của 1 GameObject sẽ không gọi Awake nếu GameObject đang xét không ACTIVE.
+         * 
+         * - Đối với script này: Vì script này được đặt trong GameManager, nên Awake cùa nó sẽ được gọi khi mới vào Scene.
+         * Awake của script này ban đầu cũng dùng để trỏ vào các UDP UI Elements, nhưng vì lúc Awake của script này được gọi thì chỉ có
+         * StartingPanel ACTIVE, và các UDP UI Elements nằm trong GamePanel nên tụi nó có activeInHierarchy = False.
+         * --> GameObject.Find không hoạt động và trả về NullReferenceException.
+         * ==> Để tránh làm code rườm ra, ta sẽ trỏ thẳng từ INSPECTOR.
+         */
+
+        // labelText = GameObject.Find("Label (TMP)").GetComponent<TMP_Text>();
+        if (labelText == null)
+        {
+            Debug.LogError("Missing Label UI Text", this);
+        }
+
+        // angleText = GameObject.Find("Angle (TMP)").GetComponent<TMP_Text>();
+        if (angleText == null)
+        {
+            Debug.LogError("Missing Angle UI Text", this);
+        }
+
+        // rotationText = GameObject.Find("Rotation (TMP)").GetComponent<TMP_Text>();
+        if (rotationText == null)
+        {
+            Debug.LogError("Missing H-Input UI Text", this);
+        }
+
+        // vInputText = GameObject.Find("V-INPUT (TMP)").GetComponent<TMP_Text>();
+        if (vInputText == null)
+        {
+            Debug.LogError("Missing V-Input UI Text", this);
+        }
+
+        // Newly added brake UIs
+        if (isBrakeCalledText == null)
+        {
+            Debug.LogError("Missing isBrakeCalled UI Text", this);
+        }
+        if (brakeValText == null)
+        {
+            Debug.LogError("Missing Brake Val UI Text", this);
+        }
 
         // Grabs the CarControlNormal component
         // ccn = GameObject.Find("Race Car Byst").GetComponent<CarControlNormal>();
-        ccn = GameObject.FindGameObjectWithTag("Player").GetComponent<CarControlNormal>();
+
+        //// Dời cctrl xuống Start() vì:
+        /// - Các hàm Awake sẽ bắt đầu ở các thời điểm khác nhau nên ta không biết được là có thể
+        /// trỏ vào var LocalPlayerInstance được không
+        // cctrl = CarControl.LocalPlayerInstance.GetComponent<CarControl>();
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        //Dời cctrl xuống đây
+        cctrl = CarControl.LocalPlayerInstance.GetComponent<CarControl>();
+
+        //// Ta có thể disable/enable các UDP UI GameObject vì SetActive đổi activeSelf của tụi nó.
+        /// Khi GamePanel bị disabled thì activeInHierarchy của tụi nó sẽ = False --> Ko display nữa (dù activeSelf có là True)
+        // Disable Debug UI elements
+        if (isDebugMode == false)
+        {
+            GameObject.Find("Angle (TMP)").SetActive(false);
+            GameObject.Find("V-INPUT (TMP)").SetActive(false);
+            GameObject.Find("Rotation (TMP)").SetActive(false);
+        }
+
         // isUDPActive = true;
         old_v_inp = 0.0f;
         isKeyboardInput = false;
@@ -114,18 +187,34 @@ public class UDPSocketTest1 : MonoBehaviour
         {
             InitUDPSocket();
 
-            cudInput = new ConvertedUDPData_();
+            cudInput = new Converted_UDP_Data();
+        }
+        // If isUDPActive isn't active, disable Label UI element along with Debug ones
+        else
+        {
+            GameObject.Find("Label (TMP)").SetActive(false);
+
+            GameObject.Find("Angle (TMP)").SetActive(false);
+            GameObject.Find("V-INPUT (TMP)").SetActive(false);
+            GameObject.Find("Rotation (TMP)").SetActive(false);
         }
 
-        // Initialize the rates
-        brakingRate = ccn.brakingRate;
-        accelRateUDP = ccn.accelRateUDP;
-        reverseRateUDP = ccn.reverseRateUDP;
+        // Initialize the control rates
+        brakingRate = cctrl.brakingRate;
+        accelRateUDP = cctrl.accelRateUDP;
+        reverseRateUDP = cctrl.reverseRateUDP;
     }
 
     // Update is called once per frame
     void Update()
     {
+        /* Initially I was going to use photonView.IsMine here as well, but seeing that this script only receives
+         and processes data from our local Python app, I removed photonView.IsMine.
+        That and CarControl.cs already had photonView.IsMine for local player controls.*/
+
+        //if (photonView.IsMine)
+        //{
+
         if (isUDPActive)
         {
             ////// If there are Keyboard Inputs, do something here
@@ -174,25 +263,38 @@ public class UDPSocketTest1 : MonoBehaviour
             // with (brakeVal += brakingRate) being 1 at max.)
 
             ////// Now we comapre old_v_inp with our newly converted data in this frame
-            if (old_v_inp != cudInput.verticalInputValue)
-                print(cudInput.verticalInputValue);
+            if (isDebugMode)
+            {
+                if (old_v_inp != cudInput.verticalInputValue)
+                    print(cudInput.verticalInputValue);
+            }
 
-            ////// If them UI elements don't exist --> Don't run this method
-            if (labelText != null && angleText != null && rotationText != null && vInputText != null)
-                ChangeLabel_v2(cudInput, label, steerAngle, cudInput.normalizedWheelRotation); //normalizedRota
+            ////// If isDebugMode is on --> Change and update UI elements
+            if (isDebugMode)
+            {
+                ////// If them UI elements don't exist --> Don't run this method
+                if (labelText != null && angleText != null && rotationText != null && vInputText != null)
+                    ChangeLabel_v2(cudInput, label, steerAngle, cudInput.normalizedWheelRotation); //normalizedRota
+            }
+            else
+            {
+                ChangeLabel(label);
+            }
 
             // Now we had already gotten the data we needed
             // (vInput -- normalizedWheelRotation; hInput -- verticalInputValue; isBrakeCalled -- callBrake; brakeVal -- brakeValue)
-            // , we need to (somehow) transfer it to our CarControlNormal script
+            // , we need to (somehow) transfer it to our CarControl_UDP script (and somehow intergrate it with Photon online servers)
 
-            //ChangeLabel();
         }
+
+        //}
+        
     }
 
     #region UDP - Data Receiving Methods
     private void InitUDPSocket()
     {
-        Debug.LogWarning("[UDP STARTED] UDP Initialized");
+        Debug.LogWarning("[UDP STARTED] UDP (Controller) Initialized");
 
         receiveThread = new Thread(new ThreadStart(ReceiveDataOld));
         receiveThread.IsBackground = true;
@@ -213,9 +315,18 @@ public class UDPSocketTest1 : MonoBehaviour
 
             try
             {
-                IPEndPoint anyIP = new IPEndPoint(IPAddress.Any, port);
-                //IPAddress ip = IPAddress.Parse("127.0.0.1");
-                //IPEndPoint anyIP = new IPEndPoint(ip, port);
+                //// !!! IMPORTANT !!!
+                //// Using IPAddress.any will lead to us receiving packets from Photon's servers instead.
+                // Since they also have ports 27001 and 27002. So instead of using 0.0.0.0, we'll only
+                // be using 127.0.0.1 (our local IP)
+                // https://doc.photonengine.com/server/current/operations/tcp-and-udp-port-numbers
+                // Reason being: We only wanted our UDP data to be sent from our Python app to here in order
+                // for our scripts to process our UDP Data into inputs. Since 0.0.0.0 takes any IPs, it can literally
+                // get UDP data from Photon Master Servers and Game Servers themselves, which we don't want.
+                //IPEndPoint anyIP = new IPEndPoint(IPAddress.Any, port);
+
+                IPAddress ip = IPAddress.Parse("127.0.0.1");
+                IPEndPoint anyIP = new IPEndPoint(ip, port);
                 byte[] buffer = udpClient.Receive(ref anyIP);
 
                 //print("[UDP INFO] UDP buffer length received: " + buffer.Length);
@@ -239,7 +350,7 @@ public class UDPSocketTest1 : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogWarning("[UDP WARNING] Thread is about to be terminated...");
+                    Debug.LogWarning("[UDP WARNING] (Controller) Thread is about to be terminated...");
                 }
             }
         
@@ -316,28 +427,25 @@ public class UDPSocketTest1 : MonoBehaviour
         }
     }
 
-    private void ChangeLabel()
+    private void ChangeLabel(string labelTxt)
     {
         if (dataReceived != "")
         {
-            string[] splitData = dataReceived.Split('$');
+            //string[] splitData = dataReceived.Split('$');
 
-            labelText.text = splitData[0];
-            angleText.text = splitData[1];
-            rotationText.text = "<b>" + "H-Input: " + "</b>" + "<i><size=90%>" + (Math.Round(float.Parse(splitData[1], CultureInfo.InvariantCulture) / 90f, 2)).ToString() + "</i>";
-
-            //<b>V-INPUT:</b> <i><size=90%>0.00</i>
+            labelText.text = labelTxt;
+            //labelText.text = splitData[0];
+            //angleText.text = splitData[1];
+            //rotationText.text = "H-Input: " + (Math.Round(float.Parse(splitData[1], CultureInfo.InvariantCulture) / 90f, 2)).ToString();
             //vInputText.text = "V-Input: " + 
         }
         else
         {
-            labelText.text = "SAMPLE TEXT";
-            angleText.text = "SAMPLE ANGLE";
-            rotationText.text = "SAMPLE ROTATION";
+            labelText.text = "NO DATA RECEIVED";
         }
     }
 
-    private void ChangeLabel_v2(ConvertedUDPData_ cudObj, string labelTxt, float angleTxt, float normRota)
+    private void ChangeLabel_v2(Converted_UDP_Data cudObj, string labelTxt, float angleTxt, float normRota)
     {
         // I can use the global variables in this class (UDPSocketTest1's vars) but I'm putting them as params instead
         // since I wanted to test things.
@@ -346,16 +454,20 @@ public class UDPSocketTest1 : MonoBehaviour
             if (dataReceived != "")
             {
                 labelText.text = labelTxt;
-                angleText.text = angleTxt.ToString();
-                rotationText.text = "H-Input: " + normRota; //(cudObj.normalizedWheelRotation).ToString();
-                vInputText.text = "V-Input: " + (cudObj.verticalInputValue).ToString();
+                angleText.text = "<b>" + "Angle: " + "</b>" + "<i><size=90%>" + angleTxt.ToString() + "</i>";
+                rotationText.text = "<b>" + "H-Input: " + "</b>" + "<i><size=90%>" + normRota + "</i>"; //(cudObj.normalizedWheelRotation).ToString();
+                vInputText.text = "<b>" + "V-Input: " + "</b>" + "<i><size=90%>" + (cudObj.verticalInputValue).ToString("0.00") + "</i>";
+                isBrakeCalledText.text = "BRAKE: " + cudObj.callBrake.ToString();
+                brakeValText.text = "<b> BRAKEVAL: </b>" + "<i><size=90%>" + cudObj.brakeValue.ToString("0.00") + "</i>";
             }
             else
             {
-                labelText.text = "SAMPLE TEXT";
-                angleText.text = "SAMPLE ANGLE";
-                rotationText.text = "SAMPLE ROTATION";
-                vInputText.text = "New Text";
+                labelText.text = "LABEL";
+                angleText.text = "<b>" + "Angle: " + "</b>" + "<i><size=90%>" + "90.00" + "</i>"; ;
+                rotationText.text = "<b>" + "H-Input: " + "</b>" + "<i><size=90%>" + "0.00" + "</i>";
+                vInputText.text = "<b>" + "V-Input: " + "</b>" + "<i><size=90%>" + "0.00" + "</i>";
+                isBrakeCalledText.text = "BRAKE: " + cudObj.callBrake.ToString();
+                brakeValText.text = "<b> BRAKEVAL: </b>" + "<i><size=90%>" + "0.00" + "</i>";
             }
         }
     }
@@ -364,7 +476,6 @@ public class UDPSocketTest1 : MonoBehaviour
     {
         if (isUDPActive)
         {
-            //isCameraActive = false;
             if (udpClient != null)
             {
                 udpClient.Close();
@@ -376,11 +487,11 @@ public class UDPSocketTest1 : MonoBehaviour
             {
                 if (receiveThread.Join(100))
                 {
-                    print("UDP Thread has closed successfully - OnDestroy");
+                    Debug.LogWarning("[UDP THREAD CLOSED] UDP Thread has closed successfully - OnDestroy");
                 }
                 else
                 {
-                    print("UDP Thread did not close in 100ms, abort - OnDestroy");
+                    Debug.LogWarning("[UDP ABORT] UDP Thread did not close in 100ms, abort - OnDestroy");
                     receiveThread.Abort();
                 }
                 //receiveThread.Abort();
@@ -409,11 +520,11 @@ public class UDPSocketTest1 : MonoBehaviour
     //        {
     //            if (receiveThread.Join(100))
     //            {
-    //                print("UDP Thread has closed successfully - OnDestroy");
+    //                Debug.LogWarning("[UDP THREAD CLOSED] UDP Thread has closed successfully - OnDestroy");
     //            }
     //            else
     //            {
-    //                print("UDP Thread did not close in 100ms, abort - OnDestroy");
+    //                Debug.LogWarning("[UDP ABORT] UDP Thread did not close in 100ms, abort - OnDestroy");
     //                receiveThread.Abort();
     //            }
     //            //receiveThread.Abort();
@@ -449,18 +560,19 @@ public class UDPSocketTest1 : MonoBehaviour
 
 // There will be fixes to this soon, once I'm able to improve my CAR ENGINE code that is.
 [System.Serializable]
-public class ConvertedUDPData_
+public class Converted_UDP_Data
 {
     public Vector2 directionInput;
     public float steeringAngle;
 
+
+    /* VARIABLES FOR CURRENT CAR INPUT SYSTEM */
     // Since most of the cars have different max rotation angles, they rely on values from -1 --> 1 to rotate.
     // This is technically the hInput
     public float normalizedWheelRotation;
 
     // This is the vInput
     public float verticalInputValue;
-
 
     // Bool/Flag to call CarControl's brake
     public bool callBrake;
@@ -472,7 +584,7 @@ public class ConvertedUDPData_
     // This will be incremented by "brakingRate" (taken from CarControlNormal component) every frame
 
 
-    public ConvertedUDPData_()
+    public Converted_UDP_Data()
     {
         directionInput = Vector2.zero;
         steeringAngle = 0.0f;
@@ -484,7 +596,7 @@ public class ConvertedUDPData_
         brakeValue = 0.0f;
     }
 
-    public ConvertedUDPData_(Vector2 v2, float angle)
+    public Converted_UDP_Data(Vector2 v2, float angle)
     {
         directionInput = new Vector2(v2.x, v2.y);
         steeringAngle = angle;
@@ -496,130 +608,6 @@ public class ConvertedUDPData_
         brakeValue = 0.0f;
     }
 
-    /// <summary>
-    /// The OLD version of the DataConvert method. (DEPRECATED, USE v2)
-    /// Is used to convert the "label$angle" received from the Python app (using UDP) to data that our CarControlNormal script
-    /// can use to operate our vehicle.
-    /// 
-    /// Then again, this version is old and isn't really usable with the newly modified CarControlNormal (which also had methods
-    /// for braking instead of having the user press the opposite key to brake).
-    /// </summary>
-    /// <param name="label"></param>
-    /// <param name="angle"></param>
-    public void UDP_DataConvert(string label, float angle)
-    {
-        // Default vars
-        Vector2 defaultV2 = Vector2.zero;
-        float defaultAngle = 0.0f;
-
-        // This is the default case / When dataReceived == ""
-        if (label == "" && angle == 0.0f)
-        {
-            normalizedWheelRotation = 0.0f;
-            verticalInputValue = 0.0f;
-            return;
-        }
-
-
-        // label switch case
-        switch(label.ToUpper())
-        {
-            case "IDLE":
-                directionInput = Vector2.zero;
-                steeringAngle = 0.0f;
-
-                // Current Input system
-                normalizedWheelRotation = 0.0f;
-                verticalInputValue = 0.0f;
-                break;
-            case "STATICSTRAIGHT":
-                directionInput = new Vector2(1, 0);
-                steeringAngle = 0f;
-                // For use in future I hope
-                //if (normalizedWheelRotation < 0)
-                //    normalizedWheelRotation = Math.Min(steeringAngle += .2f, 0f);
-                //else
-                //    normalizedWheelRotation = Math.Max(steeringAngle -= .2f, 0f);
-
-                normalizedWheelRotation = 0.0f;
-                verticalInputValue = Math.Min(verticalInputValue += 0.05f, 1f);
-                //if (verticalInputValue < 1)
-                //    verticalInputValue += 0.1f;
-                //else
-                //    verticalInputValue = 1f;
-                break;
-            case "LSTEER":
-                directionInput = new Vector2(-1, 1);
-                steeringAngle = angle;
-
-                normalizedWheelRotation = (float)Math.Round((steeringAngle / 90), 2);
-                // idk if I needed to put verticalInputValue here since steering doesn't really affect vertical input
-                // unless you Brake, I doubt you'd want to decrease your vertical input
-                break;
-            case "RSTEER":
-                directionInput = new Vector2(1, 1);
-                steeringAngle = angle;
-
-                normalizedWheelRotation = (float)Math.Round((steeringAngle / 90), 2);
-                // idk if I needed to put verticalInputValue here since steering doesn't really affect vertical input
-                // unless you Brake, I doubt you'd want to decrease your vertical input
-                break;
-            // "BRAKE" and "BRAKEHOLD" might be different in the future
-            case "BOOST":
-
-                break;
-
-            case "BRAKE":
-                directionInput = Vector2.zero;
-                steeringAngle = angle;
-
-                normalizedWheelRotation = (float)Math.Round((steeringAngle / 90), 2);
-                if (verticalInputValue < 0)
-                    verticalInputValue = Math.Min(verticalInputValue += 0.1f, 0f);
-                else if (verticalInputValue > 0)
-                    verticalInputValue = Math.Max(verticalInputValue -= 0.1f, 0f);
-                else
-                    verticalInputValue = 0f;
-                break;
-            case "BRAKEHOLD":
-                directionInput = Vector2.zero;
-                steeringAngle = angle;
-
-                //normalizedWheelRotation = 0.0f;
-                //normalizedWheelRotation = (float)Math.Round((steeringAngle / 90), 2);
-                if (normalizedWheelRotation < 0)
-                    normalizedWheelRotation = Math.Min(steeringAngle += .2f, 0f);
-                else
-                    normalizedWheelRotation = Math.Max(steeringAngle -= .2f, 0f);
-                verticalInputValue = 0.0f;
-                break;
-            case "REVERSE":
-                directionInput = new Vector2();
-                steeringAngle = angle;
-
-                normalizedWheelRotation = (float)Math.Round((steeringAngle / 90), 2);
-                verticalInputValue = Math.Max(verticalInputValue -= 0.05f, -1f);
-                break;
-            // Now idrk what to do with this since this shows up when either:
-            // There's no body landmarks detected
-            // Or when 
-            case "NONE":
-                if (normalizedWheelRotation == 0)
-                    normalizedWheelRotation = 0f;
-
-                if (verticalInputValue == 0)
-                    verticalInputValue = 0f;
-
-                break;
-
-            default:
-                directionInput = defaultV2;
-                steeringAngle = defaultAngle;
-                normalizedWheelRotation = 0.0f;
-                break;
-        }
-    }
-    // DEPRECATED, USE v2!!!
 
     // I can't access the 3 last variables since this class (ConvertedUDPData_) can't access them from here. Reason being it's not a MonoBeh.
     // So I had to pass them as variables: by default they'd be 0.1f _ 0.05f _ 0.05f
@@ -657,15 +645,6 @@ public class ConvertedUDPData_
             case "STATICSTRAIGHT":
                 directionInput = new Vector2(1, 0);
                 steeringAngle = 0f;
-                // For use in future I hope
-                //if (normalizedWheelRotation < 0)
-                //    normalizedWheelRotation = Math.Min(steeringAngle += .2f, 0f);
-                //else
-                //    normalizedWheelRotation = Math.Max(steeringAngle -= .2f, 0f);
-                //if (verticalInputValue < 1)
-                //    verticalInputValue += 0.1f;
-                //else
-                //    verticalInputValue = 1f;
 
                 normalizedWheelRotation = 0.0f;
                 verticalInputValue = Math.Min(verticalInputValue += accelRateUDP, 1f);
@@ -718,34 +697,6 @@ public class ConvertedUDPData_
                 directionInput = Vector2.zero;
                 steeringAngle = angle;
 
-                /* NOTE: THIS IS DEPRECATED, I WAS JUST TESTING THINGS OUT
-                if (currentCarSpeed > 0.0001)
-                {
-                    // hInput
-                    if (normalizedWheelRotation < 0)
-                        normalizedWheelRotation = Math.Min(normalizedWheelRotation += .2f, 0f);
-                    else
-                        normalizedWheelRotation = Math.Max(normalizedWheelRotation -= .2f, 0f);
-                    // vInput
-                    if (verticalInputValue < 0)
-                        verticalInputValue = Math.Min(verticalInputValue += 0.1f, 1f);
-                    else
-                        verticalInputValue = Math.Max(verticalInputValue -= 0.1f, -1f);
-                    //else
-                    //    verticalInputValue = 0f;
-                }
-                else
-                {
-                    normalizedWheelRotation = (float)Math.Round((steeringAngle / 90), 2);
-                    //if (verticalInputValue < 0)
-                    //    verticalInputValue = Math.Min(verticalInputValue += 0.1f, 0f);
-                    //else if (verticalInputValue > 0)
-                    //    verticalInputValue = Math.Max(verticalInputValue -= 0.1f, 0f);
-                    //else
-                    verticalInputValue = 0f;
-                }
-                */
-
                 ////// Current Car controlling system
                 // vInput and hInputs are somewhat not affected, but I'll make it so that vInput is 0
                 callBrake = true;
@@ -755,50 +706,18 @@ public class ConvertedUDPData_
                 directionInput = Vector2.zero;
                 steeringAngle = angle;
 
-                /* NOTE: THIS IS DEPRECATED, I WAS JUST TESTING THINGS OUT  
-                normalizedWheelRotation = 0.0f;
-                normalizedWheelRotation = (float)Math.Round((steeringAngle / 90), 2);
-                if (currentCarSpeed > 0.0001)
-                {
-                    // hInput
-                    if (normalizedWheelRotation < 0)
-                        normalizedWheelRotation = Math.Min(normalizedWheelRotation += .1f, 0f);
-                    else
-                        normalizedWheelRotation = Math.Max(normalizedWheelRotation -= .1f, 0f);
-                    // vInput
-                    if (verticalInputValue < 0)
-                        verticalInputValue = Math.Min(verticalInputValue += 0.1f, 1f);
-                    else if (verticalInputValue > 0)
-                        verticalInputValue = Math.Max(verticalInputValue -= 0.1f, -1f);
-                    else
-                        verticalInputValue = 0f;
-                }
-                else
-                {
-                    //normalizedWheelRotation = 0f;   // Slightly different from BRAKE (im lazy)
-
-                    if (normalizedWheelRotation < 0)
-                        normalizedWheelRotation = Math.Min(steeringAngle += .2f, 0f);
-                    else
-                        normalizedWheelRotation = Math.Max(steeringAngle -= .2f, 0f);
-                    //if (verticalInputValue < 0)
-                    //    verticalInputValue = Math.Min(verticalInputValue += 0.1f, 0f);
-                    //else if (verticalInputValue > 0)
-                    //    verticalInputValue = Math.Max(verticalInputValue -= 0.1f, 0f);
-                    //else
-                    verticalInputValue = 0f;
-                }
-
-                if (normalizedWheelRotation < 0)
-                    normalizedWheelRotation = Math.Min(steeringAngle += .2f, 0f);
-                else
-                    normalizedWheelRotation = Math.Max(steeringAngle -= .2f, 0f);
-                verticalInputValue = 0.0f;
-                */
-
                 ////// Current Car controlling system
+                // vInput and hInputs are somewhat not affected, but I'll make it so that vInput is 0
                 callBrake = true;
-                brakeValue = Math.Min(brakeValue += brakingRate, 1f);
+                brakeValue = 1f;
+                //brakeValue = Math.Min(brakeValue += brakingRate, 1f);
+
+                verticalInputValue = 0f;
+                //if (verticalInputValue >= 0)
+                //    Math.Min(verticalInputValue -= accelRateUDP, 0f);
+                //else
+                //    Math.Min(verticalInputValue += accelRateUDP, 0f);
+                
                 break;
             case "REVERSE":
                 directionInput = new Vector2();
