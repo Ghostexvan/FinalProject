@@ -13,19 +13,7 @@ MonoBehaviour:
   m_Name: Hoshilo
   m_EditorClassIdentifier: 
   variants_:
-  - variantPrefab: {fileID: 4333421045147879027, guid: e4bfe4b37c4873f439654db37d621df6, type: 3}
+  - variantPrefab: {fileID: 1478084810166919, guid: 06589542d91ebc040aa67a3038dc68a2, type: 3}
     variantColor:
       serializedVersion: 2
-      rgba: 4294911744
-  - variantPrefab: {fileID: 4701226168292422959, guid: b05994879e32f324fab5799e64310b1f, type: 3}
-    variantColor:
-      serializedVersion: 2
-      rgba: 4285953654
-  - variantPrefab: {fileID: 934597137127689633, guid: 123ad11879c0aac4dae2e7182aaf8304, type: 3}
-    variantColor:
-      serializedVersion: 2
-      rgba: 4293525759
-  - variantPrefab: {fileID: 5307249498348523305, guid: 4c510902a382b7044aa8e93641784c82, type: 3}
-    variantColor:
-      serializedVersion: 2
-      rgba: 4278190335
+      rgba: 4292542719

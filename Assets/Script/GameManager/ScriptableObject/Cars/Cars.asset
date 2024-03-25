@@ -23,4 +23,4 @@ MonoBehaviour:
     carVariants: {fileID: 11400000, guid: 831e18c764db054499d26e96c1c116f0, type: 2}
   - carName: Hoshilo
     carDescription: This supposed to be Hoshino from Blue Archive.
-    carVariants: {fileID: 11400000, guid: 831e18c764db054499d26e96c1c116f0, type: 2}
+    carVariants: {fileID: 11400000, guid: b6e12b0e92f9a9e47b48c9fd573537b4, type: 2}

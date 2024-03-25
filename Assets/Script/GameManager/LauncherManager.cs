@@ -16,46 +16,10 @@ public class LauncherManager : MonoBehaviourPunCallbacks
     private byte maxPlayersPerRoom = 4;
 
     [SerializeField]
-    private GameObject launcherPanel;
-
-    [SerializeField]
-    private GameObject lobbyPanel;
-
-    [SerializeField]
-    private GameObject roomPanel;
-
-    [SerializeField]
-    private GameObject selectPanel;
-
-    [SerializeField]
-    private GameObject playerNamePanel;
-
-    [SerializeField]
-    private GameObject optionsPanel;
-
-    [SerializeField]
-    private GameObject progressPanel;
-
-    [SerializeField]
-    private GameObject roomInfoObject;
-
-    [SerializeField]
-    private GameObject roomListContent;
-
-    [SerializeField]
-    private GameObject playerListObject;
-
-    [SerializeField]
     private LocalPlayerData localPlayerData;
 
     [SerializeField]
     private Cars carsPool;
-
-    [SerializeField]
-    private GameObject spawnPosition;
-
-    [SerializeField]
-    private List<GameObject> historyPanel = new List<GameObject>();
 
     #endregion
 
@@ -66,6 +30,18 @@ public class LauncherManager : MonoBehaviourPunCallbacks
     private Dictionary<string, RoomInfo> cachedRoomList = new Dictionary<string, RoomInfo>();
     private Dictionary<string, GameObject> cachedRoomObjectList = new Dictionary<string, GameObject>();
     private GameObject playerModel;
+    private GameObject launcherPanel;
+    private GameObject lobbyPanel;
+    private GameObject roomPanel;
+    private GameObject selectPanel;
+    private GameObject playerNamePanel;
+    private GameObject optionsPanel;
+    private GameObject progressPanel;
+    private GameObject roomInfoObject;
+    private GameObject roomListContent;
+    private GameObject playerListObject;
+    private GameObject spawnPosition;
+    private List<GameObject> historyPanel = new List<GameObject>();
 
     #endregion
 
@@ -151,6 +127,11 @@ public class LauncherManager : MonoBehaviourPunCallbacks
         } else {
             localPlayerData.SetPlayerIndex(0, 0);
         }
+
+        localPlayerData.SetPlayerPrefab(carsPool.GetCarPrefab(
+            localPlayerData.GetPlayerCarIndex(),
+            localPlayerData.GetPlayerVariantIndex()
+        ));
 
         spawnPosition = GameObject.FindGameObjectWithTag("SpawnPosition");
         if (spawnPosition == null)

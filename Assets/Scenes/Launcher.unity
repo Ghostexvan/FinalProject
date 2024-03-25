@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18043059, g: 0.22116295, b: 0.27965966, a: 1}
+  m_IndirectSpecularColor: {r: 0.18041992, g: 0.22114389, b: 0.2796099, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2580,6 +2580,7 @@ GameObject:
   - component: {fileID: 522983433}
   - component: {fileID: 522983432}
   - component: {fileID: 522983431}
+  - component: {fileID: 522983435}
   m_Layer: 5
   m_Name: EnterButton
   m_TagString: Untagged
@@ -2717,6 +2718,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 522983428}
   m_CullTransparentMesh: 1
+--- !u!114 &522983435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 522983428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d947d6e585600c4582e5d46e54306c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &531884523
 GameObject:
   m_ObjectHideFlags: 0
@@ -3628,7 +3641,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.00018310547, y: 415}
+  m_AnchoredPosition: {x: -0.00024414062, y: 415}
   m_SizeDelta: {x: -57.164, y: -872.85}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &653151363
@@ -4757,20 +4770,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxPlayersPerRoom: 4
-  launcherPanel: {fileID: 0}
-  lobbyPanel: {fileID: 0}
-  roomPanel: {fileID: 0}
-  selectPanel: {fileID: 0}
-  playerNamePanel: {fileID: 0}
-  optionsPanel: {fileID: 0}
-  progressPanel: {fileID: 0}
-  roomInfoObject: {fileID: 7292380506755664962, guid: dfcec06078de0c04fb5c2433aa682bf6, type: 3}
-  roomListContent: {fileID: 0}
-  playerListObject: {fileID: 0}
   localPlayerData: {fileID: 11400000, guid: f57b58dc9e910ce458f98a2d529793e7, type: 2}
   carsPool: {fileID: 11400000, guid: c596e77959dbf0d40b74d04af9b4fc60, type: 2}
-  spawnPosition: {fileID: 0}
-  historyPanel: []
 --- !u!114 &906228440
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5819,6 +5820,7 @@ GameObject:
   - component: {fileID: 1109155228}
   - component: {fileID: 1109155227}
   - component: {fileID: 1109155231}
+  - component: {fileID: 1109155232}
   m_Layer: 5
   m_Name: QuitButton
   m_TagString: Untagged
@@ -5890,7 +5892,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1109155228}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1109155232}
+        m_TargetAssemblyTypeName: QuitButton, Assembly-CSharp
+        m_MethodName: OnClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1109155228
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5939,6 +5953,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8d947d6e585600c4582e5d46e54306c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1109155232
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1109155225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fb3434cba8860242991d947e4e83b9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1112096653
@@ -10966,7 +10992,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 1
+    m_Type: 2
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
