@@ -74,3 +74,6 @@ crashlytics-build.properties
 .fake
 
 /dist/
+
+# Ignore extra addon files. These are unitypackages I imported in for testing only
+/[Aa]ssets/[Aa]ddons/
