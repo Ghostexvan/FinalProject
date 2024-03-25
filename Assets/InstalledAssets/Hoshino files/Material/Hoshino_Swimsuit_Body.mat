@@ -1,0 +1,139 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Hoshino_Swimsuit_Body
+  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  m_ValidKeywords:
+  - _PARALLAXMAP
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _HairSpecTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 5ca725b1a5b7ac74b8c4c4bf13f92d3f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MaskTex:
+        m_Texture: {fileID: 2800000, guid: 427a338f6b41ce7478a26f202cf48c25, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 2800000, guid: 427a338f6b41ce7478a26f202cf48c25, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TempTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _AdditionalLightSharpness: 5
+    - _AdditionalLightStrength: 1
+    - _AdjustiveHairShadow: 0
+    - _BumpScale: 1
+    - _Cull: 0
+    - _Cutoff: 0.5
+    - _DetailNormalMapScale: 1
+    - _DitherThreshold: 0
+    - _DstBlend: 0
+    - _DstBlendAlpha: 0
+    - _GlossMapScale: 1
+    - _Glossiness: 0.5
+    - _GlossyReflections: 1
+    - _GlowStrength: 0
+    - _GrayBrightness: 1
+    - _MaskGSensitivity: 2
+    - _Metallic: 0
+    - _Mode: 0
+    - _OcclusionStrength: 1
+    - _OutlineWidth: 0
+    - _OutlineZCorrection: 0
+    - _Parallax: 0.02
+    - _RimAreaLeveler: 2
+    - _RimAreaMultiplier: 3
+    - _RimStrength: 1
+    - _ShadowThreshold: 0.5
+    - _SmoothnessTextureChannel: 0
+    - _SpecBotArea: 0.3
+    - _SpecBotMultiplier: 11
+    - _SpecStrength: 1
+    - _SpecTopLeveler: 2
+    - _SpecTopMultiplier: 3
+    - _SpecularHighlights: 1
+    - _SrcBlend: 1
+    - _SrcBlendAlpha: 1
+    - _UVSec: 0
+    - _ZWrite: 1
+    m_Colors:
+    - _BaseBrightness4: {r: 0, g: 0, b: 0, a: 0}
+    - _CodeAddColor: {r: 0, g: 0, b: 0, a: 0}
+    - _CodeAddRimColor: {r: 0, g: 0, b: 0, a: 0}
+    - _CodeMultiplyColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _GlowTint: {r: 0, g: 0, b: 0, a: 1}
+    - _InvViewPower4: {r: 1, g: 10, b: 12, a: 7}
+    - _InvViewStrength4: {r: 0, g: 0, b: 0.3, a: 0.5}
+    - _MxCharLightData: {r: 0.74, g: 0.46, b: 0, a: 0}
+    - _MxCharLightTone: {r: 1, g: 1, b: 1, a: 1}
+    - _MxCharShadowTone: {r: 1, g: 1, b: 1, a: 1}
+    - _OutlineTint: {r: 0.759, g: 0.56073064, b: 0.5483388, a: 1}
+    - _RimAreaMultiplier4: {r: 3, g: 3, b: 5, a: 3}
+    - _RimStrength4: {r: 1, g: 1, b: 0.5, a: 0.5}
+    - _ShadowThreshold4: {r: 0.15, g: 0.9, b: 0.7, a: 1}
+    - _ShadowTint: {r: 1, g: 0.69411767, b: 0.7137255, a: 1}
+    - _ShadowTintB4: {r: 0.6944642, g: 0.8584906, b: 0.90800005, a: 0.7830189}
+    - _ShadowTintG4: {r: 0.709342, g: 0.7588165, b: 0.7077059, a: 0.7736776}
+    - _ShadowTintR4: {r: 0.9622642, g: 0.6114721, b: 0.7878236, a: 0.7202296}
+    - _SpecDirMultiplier: {r: 0, g: 0, b: 0, a: 0}
+    - _Tint: {r: 1, g: 1, b: 1, a: 1}
+    - _TwoSideTint: {r: 1, g: 1, b: 1, a: 1}
+    - _ViewLightEdge4: {r: 0, g: 1, b: 0, a: 1}
+    - _ViewOffset4: {r: 0, g: 0, b: 0.7, a: 0.6}
+    - _ViewPower4: {r: 1, g: 20, b: 7.2, a: 5}
+    - _ViewStrength4: {r: 0, g: 0, b: 0.05, a: 0.4}
+  m_BuildTextureStacks: []

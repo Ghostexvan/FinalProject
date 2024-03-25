@@ -31,8 +31,6 @@ public class MouseController : MonoBehaviour
         {
             Instance = this;
         }
-
-        DontDestroyOnLoad(this);
     }
 
     // Start is called before the first frame update

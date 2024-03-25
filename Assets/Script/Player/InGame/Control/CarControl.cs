@@ -363,6 +363,10 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
         return Math.Abs(this.forwardSpeed);
     }
 
+    public float GetForwardSpeed(){
+        return this.forwardSpeed;
+    }
+
     void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode loadingMode)
     {
         this.CalledOnLevelWasLoaded(scene.buildIndex);

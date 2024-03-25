@@ -42,6 +42,7 @@ public class ViewScrollable : MonoBehaviour
         // StartCoroutine(WaitUntilSizeNotZero());
         for (int i = 0; i < 100; i++){
             test.Add(Instantiate(buttonPrefab, contentTransform));
+            test[i].GetComponent<Button>().interactable = false;
         }
     }
 
