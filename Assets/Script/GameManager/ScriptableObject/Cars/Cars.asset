@@ -24,3 +24,6 @@ MonoBehaviour:
   - carName: Hoshilo
     carDescription: This supposed to be Hoshino from Blue Archive.
     carVariants: {fileID: 11400000, guid: b6e12b0e92f9a9e47b48c9fd573537b4, type: 2}
+  - carName: Kai
+    carDescription: Kai from Lego Ninjago.
+    carVariants: {fileID: 11400000, guid: 176e8d1e07ecbb44496c751c2a126522, type: 2}

@@ -18,16 +18,12 @@ public class UI_UDP_Receiver : MonoBehaviour
     private string dataReceived = "";
     private string currentAction = null;
     private bool isCooldownSlide = false;
+    private Vector2 pointerCoordinate;
+    private string actionCommand;
 
     #endregion
 
     #region Private Serialize Fields
-    [SerializeField]
-    private string actionCommand;
-
-    [SerializeField]
-    private Vector2 pointerCoordinate;
-
     [SerializeField]
     private string defaultActionCommand = "Wait";
 
@@ -54,9 +50,6 @@ public class UI_UDP_Receiver : MonoBehaviour
 
     [SerializeField]
     private bool reverseHorizontalSlide = false;
-
-    [SerializeField]
-    private float mouseSpeed = 1.0f;
 
     [SerializeField]
     private float slideCooldown = 1.0f;
