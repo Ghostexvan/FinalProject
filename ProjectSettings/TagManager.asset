@@ -28,6 +28,7 @@ TagManager:
   - UDPAngleText
   - UDPHInputText
   - UDPVInputText
+  - UIWindows
   layers:
   - Default
   - TransparentFX

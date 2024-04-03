@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 7365841739972006249}
   - component: {fileID: 7365841739972006248}
   - component: {fileID: 7365841739972006254}
+  - component: {fileID: 7365841738816916508}
+  - component: {fileID: 7365841738816916509}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -49,7 +51,6 @@ MonoBehaviour:
   playerInfos: []
   startTime: 0
   endTime: -1
-  playerPrefab: {fileID: 8348863334990538945, guid: 226b72320d7d9c949945df0bb5e78c74, type: 3}
   playerData: {fileID: 11400000, guid: f57b58dc9e910ce458f98a2d529793e7, type: 2}
 --- !u!114 &7365841739972006254
 MonoBehaviour:
@@ -74,3 +75,50 @@ MonoBehaviour:
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
+--- !u!114 &7365841738816916508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7365841739972006251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1476a3dd2260df4f97e68b4de97024d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  label: 
+  steerAngle: 0
+  normalizedRota: 0
+  receiveTimeOut: 1
+  labelText: {fileID: 0}
+  angleText: {fileID: 0}
+  rotationText: {fileID: 0}
+  vInputText: {fileID: 0}
+  isBrakeCalledText: {fileID: 0}
+  brakeValText: {fileID: 0}
+  isKeyboardInput: 0
+  TimeToWait: 5
+  elapsedKBTime: 0
+  cudInput:
+    directionInput: {x: 0, y: 0}
+    steeringAngle: 0
+    normalizedWheelRotation: 0
+    verticalInputValue: 0
+    callBrake: 0
+    brakeValue: 0
+  isUDPActive: 1
+  isDebugMode: 1
+--- !u!114 &7365841738816916509
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7365841739972006251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72d9beb540b26c24d9248f0025a4e208, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pythonAppPath: 
