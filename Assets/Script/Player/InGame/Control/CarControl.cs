@@ -310,7 +310,10 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
 
         // Check whether the user input is in the same direction 
         // as the car's velocity
-        bool isAccelerating = Mathf.Sign(vInput) == Mathf.Sign(forwardSpeed);
+        // Chỉ so sánh hướng khi độ chênh lệch giữa forwardSpeed và vInput lớn hơn 1 khoảng cho trước (threshold) là 0.01f.
+        // Và CHỈ thực hiện so sánh hướng khi độ chênh leehcj lớn hơn threshold.
+        // Nếu nhỏ hơn thì ta mặc định là xe đang đứng yên, và khi đó, ta muốn xe di chuyển nên isAccelerating sẽ trả giá trị True.
+        bool isAccelerating = Mathf.Abs(forwardSpeed) - Mathf.Abs(vInput) - 0.01f > 0 ? Mathf.Sign(vInput) == Mathf.Sign(forwardSpeed) : true;
 
         foreach (var wheel in wheels)
         {
@@ -326,6 +329,15 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
                 wheel.WheelCollider.brakeTorque = Mathf.Abs(brakeVal) * brakeTorque;
                 wheel.WheelCollider.motorTorque = 0;
                 continue;   // Skipping the rest of the loop
+            }
+            else
+            {
+                // I think I forgot to re-adjust the value of brakeTorque WHEN we stopped braking.
+                /// So when I brake using Spacebar, "brakeCall" will be True and wheel.WheelCollider.brakeTorque will increase.
+                /// And when I'd completely stopped, "brakeCall" will be False, but wheel.WheelCollider.brakeTorque won't be changed (since I forgot to make it change).
+                
+                wheel.WheelCollider.brakeTorque = 0f;
+                
             }
 
             if (isAccelerating)

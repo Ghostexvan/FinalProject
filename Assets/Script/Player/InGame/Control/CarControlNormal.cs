@@ -314,6 +314,8 @@ public class CarControlNormal : MonoBehaviourPunCallbacks, IPunObservable
         // Calculate current speed in relation to the forward direction of the car
         // (this returns a negative number when traveling backwards)
         forwardSpeed = Vector3.Dot(transform.forward, rigidBody.velocity);
+        print("forwardSpeed: " + forwardSpeed);
+        print("vInput: " + vInput);
 
         // Calculate how close the car is to top speed
         // as a number from zero to one
@@ -329,7 +331,15 @@ public class CarControlNormal : MonoBehaviourPunCallbacks, IPunObservable
 
         // Check whether the user input is in the same direction 
         // as the car's velocity
-        bool isAccelerating = Mathf.Sign(vInput) == Mathf.Sign(forwardSpeed);
+        // Chỉ so sánh hướng khi độ chênh lệch giữa forwardSpeed và vInput lớn hơn 1 khoảng cho trước (threshold) là 0.01f.
+        // Và CHỈ thực hiện so sánh hướng khi độ chênh leehcj lớn hơn threshold.
+        // Nếu nhỏ hơn thì ta mặc định là xe đang đứng yên, và khi đó, ta muốn xe di chuyển nên isAccelerating sẽ trả giá trị True.
+        bool isAccelerating = Mathf.Abs(forwardSpeed) - Mathf.Abs(vInput) - 0.01f > 0 ? Mathf.Sign(vInput) == Mathf.Sign(forwardSpeed) : true;
+
+        //print("speedFactor:" + speedFactor);
+        //print("currentMotorTorque: " + currentMotorTorque);
+        print("Mathf.Sign(vInput): " + Mathf.Sign(vInput));
+        print("Mathf.Sign(forwardSpeed): " + Mathf.Sign(forwardSpeed));
 
         foreach (var wheel in wheels)
         {
@@ -345,6 +355,11 @@ public class CarControlNormal : MonoBehaviourPunCallbacks, IPunObservable
                 wheel.WheelCollider.brakeTorque = Mathf.Abs(brakeVal) * brakeTorque;
                 wheel.WheelCollider.motorTorque = 0;
                 continue;   // Skipping the rest of the loop
+            }
+            else
+            {
+                wheel.WheelCollider.brakeTorque = 0f;
+                //isAccelerating = true;
             }
 
             if (isAccelerating)
