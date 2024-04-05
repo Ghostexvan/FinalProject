@@ -71,7 +71,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AO: 4.72
+    - _AO: 3.72
     - _AdditionalLightSharpness: 5
     - _AdditionalLightStrength: 1
     - _AdjustiveHairShadow: 0
@@ -94,7 +94,7 @@ Material:
     - _MaskGSensitivity: 1
     - _Metallic: 0
     - _Mode: 0
-    - _Occlusion: 7.5
+    - _Occlusion: 7.44
     - _OcclusionStrength: 1
     - _OutlineWidth: 0
     - _OutlineZCorrection: 0

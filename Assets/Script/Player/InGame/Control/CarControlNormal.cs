@@ -16,6 +16,7 @@ public class CarControlNormal : MonoBehaviourPunCallbacks, IPunObservable
     public bool isStop = false;
     public static GameObject LocalPlayerInstance;
     public float motorTorque = 2000;
+    public float currentMotorTorque = 0;
     public float brakeTorque = 2000;
     public float maxSpeed = 20;
     public float steeringRange = 30;
@@ -279,7 +280,7 @@ public class CarControlNormal : MonoBehaviourPunCallbacks, IPunObservable
 
         // Yeah we have this, now please do the keyboard thing later
         CarEngine(vInput, hInput, isBrakeCalled, brakeVal);
-
+        //print("Forward Speed" + GetSpeed());
  
 
         // Is used in here since Time.deltaTime is recommended for use in Update
@@ -320,7 +321,7 @@ public class CarControlNormal : MonoBehaviourPunCallbacks, IPunObservable
 
         // Use that to calculate how much torque is available 
         // (zero torque at top speed)
-        float currentMotorTorque = Mathf.Lerp(motorTorque, 0, speedFactor);
+        currentMotorTorque = Mathf.Lerp(motorTorque, 0, speedFactor);
 
         // …and to calculate how much to steer 
         // (the car steers more gently at top speed)
@@ -362,6 +363,8 @@ public class CarControlNormal : MonoBehaviourPunCallbacks, IPunObservable
                 wheel.WheelCollider.brakeTorque = Mathf.Abs(vInput) * brakeTorque;
                 wheel.WheelCollider.motorTorque = 0;
             }
+
+            
         }
     }
 
@@ -386,6 +389,16 @@ public class CarControlNormal : MonoBehaviourPunCallbacks, IPunObservable
     public float GetSpeed()
     {
         return Math.Abs(this.forwardSpeed);
+    }
+
+    public float GetForwardSpeed()
+    {
+        return this.forwardSpeed;
+    }
+
+    public float GetVelocity()
+    {
+        return this.rigidBody.velocity.magnitude;
     }
 
     void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode loadingMode)

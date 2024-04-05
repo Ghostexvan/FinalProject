@@ -265,6 +265,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 731088e511e7d4042a1053e24f4c2f93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isPlaySound: 1
 --- !u!114 &7144061429261332126
 MonoBehaviour:
   m_ObjectHideFlags: 0

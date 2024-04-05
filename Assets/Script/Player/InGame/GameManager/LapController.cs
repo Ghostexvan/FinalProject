@@ -21,6 +21,10 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
     [SerializeField]
     private int nextCheckpoint = 0;
 
+    // Component GameplaySoundHandler
+    [SerializeField]
+    private GameplaySoundHandler gameplaySoundHandler;
+
     #endregion
 
     #region Private Fields
@@ -52,6 +56,9 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
     // Kiem tra nguoi choi co dang chuan bi reset vi tri
     private bool isResettingPosition;
 
+    // Kiểm tra Lap có phải Lap cuối cùng chưa, được sử dụng trong GameplayMusicHandler.cs
+    public bool isFinalLap;
+
     #endregion
 
     #region MonoBehaviour Callbacks
@@ -78,6 +85,14 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
         this.timeStartGoingRightDirection = -1f;
         this.timeStartGoingWrongDirection = -1f;
         this.isEnterNewCheckpoint = false;
+
+        /// Getting the GameplaySoundHandler.
+        // Since SFX Handler GameObject is active the whole time, its activeIH is always true.
+        // meaning I can use GameObject.Find to look for it.
+        gameplaySoundHandler = GameObject.Find("SFX Handler").GetComponent<GameplaySoundHandler>();
+
+        /// Init isFinalLap, though it's not really necessary really
+        isFinalLap = false;
     }
 
     // Ham nay duoc goi dau tien sau giai doan khoi tao Object
@@ -187,6 +202,11 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
     public bool GetCountStatus()
     {
         return this.startCount;
+    }
+
+    public bool IsFinalLap()
+    {
+        return this.isFinalLap;
     }
 
     #endregion
@@ -398,17 +418,31 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
                 // Bo sung thoi gian ket thuc cho vong dua hien tai
                 lapInfos[lapInfos.Count - 1].SetTimeFinished(PhotonNetwork.Time);
 
-                // if (lapInfos.Count >= GameManager.Instance.GetTotalLapNum())
-                // {
-                //     GameManager.Instance.SetStart();
-                // }
-
                 // Them vong dua moi
                 lapInfos.Add(new LapInfo(lapInfos.Count + 1, PhotonNetwork.Time));
 
+                /// Ở đây ta lấy lapInfos.Count sau khi đã cộng, vì ta chỉ PlaySound khi ta qua Lap mới
+                /// Play Lap Passed sound
+                if (lapInfos.Count < GameManager.Instance.GetTotalLapNum())
+                    gameplaySoundHandler.PlayPassedLap();
+                /// Neu Lap la Lap cuoi cung --> Play Final Lap sound + isFinalLap = true
+                if (lapInfos.Count == GameManager.Instance.GetTotalLapNum())
+                {
+                    gameplaySoundHandler.PlayFinalLap();
+                    isFinalLap = true;
+                }
+
+
+
+                /// Nếu người chơi kết thúc vòng đua cuối cùng
                 if (lapInfos.Count > GameManager.Instance.GetTotalLapNum())
                 {
                     this.startCount = false;
+
+                    /// Play Cross Finish Line sound
+                    gameplaySoundHandler.PlayCrossedFinishline();
+                    ///
+
                     GameManager.Instance.SetLocalPlayerFinish(lapInfos[GameManager.Instance.GetTotalLapNum() - 1].GetTimeFinished());
                 }
             }

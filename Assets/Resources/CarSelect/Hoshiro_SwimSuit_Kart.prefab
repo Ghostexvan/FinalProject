@@ -3323,6 +3323,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4363725535587479}
+  - component: {fileID: 143596163764160384}
   m_Layer: 0
   m_Name: HaloParent
   m_TagString: Untagged
@@ -3346,6 +3347,22 @@ Transform:
   m_Father: {fileID: 4051409518265925}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: -0, z: -0}
+--- !u!114 &143596163764160384
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1213347740432433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a1d0a3b0119d0f49b1daee2d2d7c33b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HaloTargetTransform: {fileID: 4235801394740960}
+  offsetX: 0
+  offsetY: 0
+  offsetZ: 0
 --- !u!1 &1232388816927901
 GameObject:
   m_ObjectHideFlags: 0
@@ -4838,8 +4855,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1.7985151, y: 1, z: 2.46}
-  m_Center: {x: 0.017695308, y: 0.5, z: 0}
+  m_Size: {x: 1.7985151, y: 1.42, z: 2.46}
+  m_Center: {x: 0.017695308, y: 0.83, z: 0}
 --- !u!82 &82813036886745070
 AudioSource:
   m_ObjectHideFlags: 0

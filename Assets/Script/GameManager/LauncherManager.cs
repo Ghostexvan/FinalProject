@@ -9,6 +9,8 @@ using TMPro;
 using Photon.Pun.UtilityScripts;
 using UnityEngine.UI;
 
+using JSAM;
+
 public class LauncherManager : MonoBehaviourPunCallbacks
 {
     #region Private Serializable Fields
@@ -214,6 +216,11 @@ public class LauncherManager : MonoBehaviourPunCallbacks
     public override void OnLeftRoom()
     {
         Debug.LogWarning("Left the room");
+
+        /// Test: When Client/Local Player (you) left the room, stops all Room sounds that was played (if it is still playing)
+        AudioManager.StopSoundIfPlaying(MainGameSounds.beep_synthtone01);
+        AudioManager.StopSoundIfPlaying(MainGameSounds.alert_clink);
+        AudioManager.StopSoundIfPlaying(MainGameSounds.menu_click01);
     }
 
     public override void OnLeftLobby()
@@ -232,11 +239,18 @@ public class LauncherManager : MonoBehaviourPunCallbacks
         StartCoroutine(WaitUntilPlayerConnectedAndReady(newPlayer));
         // playerListObject.transform.GetChild(newPlayer.GetPlayerNumber()).transform.GetChild(0).GetComponent<TMP_Text>().text = PhotonNetwork.LocalPlayer.NickName;
         // playerListObject.transform.GetChild(newPlayer.GetPlayerNumber()).transform.GetChild(1).GetComponent<Toggle>().isOn = false;
+
+        /// Test: Plays sound when remote player(s) entered the room
+        AudioManager.PlaySound(MainGameSounds.beep_synthtone01);
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         Debug.LogWarning("Player " + otherPlayer.NickName + " has left the room!");
+
+        /// Test: Plays sound if remote player(s) left the room
+        AudioManager.PlaySound(MainGameSounds.alert_clink);
+
         playerListObject.transform.GetChild(otherPlayer.GetPlayerNumber()).transform.GetChild(0).GetComponent<TMP_Text>().text = "Wait for player...";
         playerListObject.transform.GetChild(otherPlayer.GetPlayerNumber()).transform.GetChild(1).GetComponent<Toggle>().isOn = false;
     }
@@ -248,6 +262,12 @@ public class LauncherManager : MonoBehaviourPunCallbacks
         if (changedProps.ContainsKey("Ready"))
         {
             playerListObject.transform.GetChild(targetPlayer.GetPlayerNumber()).transform.GetChild(1).GetComponent<Toggle>().isOn = (bool)changedProps["Ready"];
+
+            ////// Test: Plays sound if a player is ready (Both client/local and remote players)
+            if ((bool)changedProps["Ready"] == true)
+            {
+                AudioManager.PlaySound(MainGameSounds.menu_click01);
+            }
         }
     }
 
@@ -310,6 +330,18 @@ public class LauncherManager : MonoBehaviourPunCallbacks
     #endregion
 
     #region Public Methods
+    /// <summary>
+    /// Test: Method to PlaySound when a button is pressed
+    /// Most are migrated to SoundHandler.cs in SFX Handler GameObject
+    /// </summary>
+    //public void PlaySound()
+    //{
+    //    // I didn't add StopSoundIfPlaying here since I don't think it's really needed?
+    //    // I added it though
+    //    AudioManager.StopSoundIfPlaying(MainGameSounds.menu_accept);
+    //    AudioManager.PlaySound(MainGameSounds.menu_accept);
+    //}
+
     public void EnterLobby()
     {
         if (PhotonNetwork.IsConnected)

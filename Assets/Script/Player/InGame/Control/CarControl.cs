@@ -10,6 +10,8 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
     public bool isStop = false;
     public static GameObject LocalPlayerInstance;
     public float motorTorque = 2000;
+    [HideInInspector]
+    public float currentMotorTorque;
     public float brakeTorque = 2000;
     public float maxSpeed = 20;
     public float steeringRange = 30;
@@ -92,6 +94,8 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
+        // Gửi theo thứ tự sao thì nhận (read) theo thứ tự vậy, vì ngoài bản thân LocalPlayer thì các người chơi khác
+        // cũng sẽ write/SendNext theo cùng format/thứ tự này.
         if (stream.IsWriting)
         {
             stream.SendNext(vInput);
@@ -127,6 +131,9 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
 
             udpsock = GameObject.Find("GameManager").GetComponent<UDPSocketTest_Controller>();
         }
+        
+        // Init currentMotorTorque
+        currentMotorTorque = 0f;
 
         // DontDestroyOnLoad(this.gameObject);
 
@@ -295,7 +302,7 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
 
         // Use that to calculate how much torque is available 
         // (zero torque at top speed)
-        float currentMotorTorque = Mathf.Lerp(motorTorque, 0, speedFactor);
+        currentMotorTorque = Mathf.Lerp(motorTorque, 0, speedFactor);
 
         // …and to calculate how much to steer 
         // (the car steers more gently at top speed)

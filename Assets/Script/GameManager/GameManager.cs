@@ -14,6 +14,12 @@ using Photon.Realtime;
 using TMPro;
 using Photon.Pun.UtilityScripts;
 
+using JSAM;
+
+/// <summary>
+/// Remember to include GameplaySoundHandler.cs and GameplayMusicHandler.cs in the game Scene.
+/// You can check the Audio GameObjects to find them.
+/// </summary>
 public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 {
     #region Private Serializable Fields
@@ -29,10 +35,16 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     [SerializeField]
     private double endTime = -1f;
 
+    [SerializeField]
+    private GameplaySoundHandler gameplaySoundHandler;
     #endregion
 
     #region Private Fields
     private bool isGameStart;
+
+    // This one is used to check whether the race has finished overall, is used as flag for audios mostly
+    private bool isAllPlayersFinished;
+
     private bool isCountdownEnd = false;
     private GameObject startingPanel;
     private GameObject gamePanel;
@@ -47,6 +59,10 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public GameObject playerPrefab;
     public LocalPlayerData playerData;
 
+    //[HideInInspector]
+    //public bool isGameStart;
+    //[HideInInspector]
+    //public bool isAllPlayersFinished;
     #endregion
 
     #region MonoBehaviour Callbacks
@@ -102,6 +118,14 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
         this.startTime = -1f;
         this.endTime = -1f;
+
+        /// Getting the GameplaySoundHandler.
+        // Since SFX Handler GameObject is active the whole time, its activeIH is always true.
+        // meaning I can use GameObject.Find to look for it.
+        gameplaySoundHandler = GameObject.Find("SFX Handler").GetComponent<GameplaySoundHandler>();
+
+        // Initialize isAllPlayersFinished flag (I mean I can just use endPanel GameObject but it wouldn't feel right)
+        isAllPlayersFinished = false;
     }
 
     // Start is called before the first frame update
@@ -142,6 +166,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     #region MonoBehaviourPunCallbacks Callbacks
     public override void OnLeftRoom()
     {
+        // Loads the Launcher scene upon exiting Room
         SceneManager.LoadScene(0);
     }
 
@@ -158,8 +183,10 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         // throw new NotImplementedException();
+        // Leaving the calculations to the Master Client
         if (PhotonNetwork.IsMasterClient)
         {
+            // Calculating each players' infos (Rank, Laps, Distance and Finish Time)
             for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
             {
                 stream.SendNext(i);
@@ -172,6 +199,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         }
         else if (!PhotonNetwork.IsMasterClient)
         {
+            // If player is not Master Client --> Receives the calculated infos
             for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
             {
                 int index = (int)stream.ReceiveNext();
@@ -376,6 +404,11 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         return this.isGameStart;
     }
 
+    public bool IsAllPlayersFinished()
+    {
+        return this.isAllPlayersFinished;
+    }
+
     public Vector3 GetCheckpointPosition(int index)
     {
         return this.checkpointList[index].transform.position;
@@ -399,6 +432,8 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         return playerInfos[PhotonNetwork.LocalPlayer.GetPlayerNumber()].GetRank();
     }
+
+    
 
     #endregion
 
@@ -429,11 +464,23 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         while (counter > 0)
         {
             gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text = counter.ToString();
+
+            /// Play Countdown Sound
+            gameplaySoundHandler.PlayCountdownSFX();
+            ///
+
             yield return new WaitForSeconds(1);
             counter--;
         }
 
         this.isGameStart = true;
+        /// Play Start Sound
+        /// Adding the if to prevent this from being repeatedly played
+        if (!AudioManager.IsSoundPlaying(GameplaySounds.SE_RC_GO))
+            gameplaySoundHandler.PlayGoSFX();
+        /// 
+
+
         gamePanel.transform.GetChild(1).GetComponent<TMP_Text>().text = "START";
         yield return new WaitForSeconds(3);
         gamePanel.transform.GetChild(1).gameObject.SetActive(false);
@@ -449,20 +496,30 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     IEnumerator CountdownEnd(int seconds, string playerName)
     {
+        ///// If one player finishes the race, CountdownEnd will be called from GameManager singleton.
+        /// This will only be called ONCE, since it kinda determines when the game ends as a whole
         if (isCountdownEnd)
         {
             yield break;
         }
         isCountdownEnd = true;
 
+        /// If Local Player had already finished the race (isReady had already turned from True to False again)
+        /// --> endPanel active
         if (!playerInfos[PhotonNetwork.LocalPlayer.GetPlayerNumber()].GetPlayerStatus())
         {
             gamePanel.SetActive(false);
             endPanel.SetActive(true);
         }
+        /// Else, Countdown Panel would be active instead
         else
         {
+            // This is where the Countdown UI panel is: GamePanel->GameInfo
             gamePanel.transform.GetChild(1).gameObject.SetActive(true);
+
+            /// Plays Ending Countdown
+            gameplaySoundHandler.PlayStartEndingCountdown();
+            ///
         }
 
         int counter = seconds;
@@ -473,6 +530,8 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
                 break;
             }
 
+            /// During the Countdown Period, if Local Player actually managed to Finish the race
+            /// --> EndPanel to true
             if (playerInfos[PhotonNetwork.LocalPlayer.GetPlayerNumber()].GetFinishTime() != -1f)
             {
                 if (gamePanel.activeSelf)
@@ -496,18 +555,34 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             counter--;
         }
 
+
         if (PhotonNetwork.IsMasterClient)
         {
             photonView.RPC("SetEndTime", RpcTarget.All, PhotonNetwork.Time);
         }
 
+        /// Final Countdown Loop ended, all cars will stop moving
+        /// And isGameStart will be false
         StopAllMoving();
+
+        /// If Ending Countdown SFX is playing, end it
+        /// Line 507 is where it's played
+        AudioManager.StopSoundIfPlaying(MainGameSounds.SE_RC_START_ENDING_COUNTDOWN);
+        ///
+
+        ////// Since all players have either crossed the finish or have not made it to the finish line in time, we set the flag
+        /// This will mainly be used for changing the BGM (see IsAllPlayersFinished() in Public methods)
+        isAllPlayersFinished = true;
+
 
         gamePanel.SetActive(false);
         endPanel.SetActive(true);
         endPanel.transform.GetChild(0).GetComponent<TMP_Text>().text = "<size=200%><b>GAME OVER!</b>";
         yield return new WaitUntil(() => this.endTime != -1f && PhotonNetwork.Time - this.endTime >= 5.0f);
 
+        ///// This here displays the results screen with the rank
+
+        /// Get each players' rank index
         int[] rankIndex = new int[4];
         int currentRank = 1;
         while (currentRank <= PhotonNetwork.PlayerList.Length)
@@ -525,6 +600,8 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
         // while (true)
         // {
+
+        /// Display rank index
         endPanel.transform.GetChild(0).GetComponent<TMP_Text>().text = "<align=center><size=100%><b>GAME OVER!</b></align>\n";
         for (int index = 0; index < PhotonNetwork.PlayerList.Length; index++)
         {
