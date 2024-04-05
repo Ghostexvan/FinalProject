@@ -38,24 +38,25 @@ public class GameplayMusicHandler : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        lc = CarControl.LocalPlayerInstance.gameObject.GetComponent<LapController>();
+        StartCoroutine(WaitUntilHaveLapControl());
 
-        if (lc == null)
-        {
-            Debug.LogError("Couldn't grab LC!!!");
-        }
-        else
-        {
-            Debug.LogWarning("LC IS NOT NULL");
-        }
+        // if (lc == null)
+        // {
+        //     Debug.LogError("Couldn't grab LC!!!");
+        // }
+        // else
+        // {
+        //     Debug.LogWarning("LC IS NOT NULL");
+        // }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (lc != null)
+        if (lc == null)
         {
-            Debug.LogWarning("LC IS NOT NULL YAYYYYY");
+            Debug.LogWarning("LC IS NULL, AWW");
+            return;
         }
 
         isGameStart = GameManager.Instance.GetGameStatus();
@@ -69,9 +70,9 @@ public class GameplayMusicHandler : MonoBehaviour
         if (CarControl.LocalPlayerInstance.gameObject != null)
         {
             ManageMusic(isGameStart, isAllPlayersFinished, useFinalLapTrack, isFinalLap);
-            Debug.LogError("This is only a test, I'm printing this out: " + CarControl.LocalPlayerInstance.gameObject);
-            Debug.LogError("This is to check whether I can access this GameObject's LapControl or not: " + CarControl.LocalPlayerInstance.gameObject.GetComponent<LapController>() );
-            Debug.LogError("And this is to check the lc variable: " + lc );
+            // Debug.LogError("This is only a test, I'm printing this out: " + CarControl.LocalPlayerInstance.gameObject);
+            // Debug.LogError("This is to check whether I can access this GameObject's LapControl or not: " + CarControl.LocalPlayerInstance.gameObject.GetComponent<LapController>() );
+            // Debug.LogError("And this is to check the lc variable: " + lc );
         }
 
         /// We did have Stop Sounds/Musics on Scene Changed so we don't need to do anything when we change from Gameplay Scene to Launcher.
@@ -129,5 +130,13 @@ public class GameplayMusicHandler : MonoBehaviour
         //{
 
         //}
+    }
+
+    IEnumerator WaitUntilHaveLapControl(){
+        yield return new WaitUntil(() => {
+            return CarControl.LocalPlayerInstance != null;
+        });
+
+        lc = CarControl.LocalPlayerInstance.gameObject.GetComponent<LapController>();
     }
 }
