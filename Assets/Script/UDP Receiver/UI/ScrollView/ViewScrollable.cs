@@ -40,16 +40,16 @@ public class ViewScrollable : MonoBehaviour
     private void Awake()
     {
         // StartCoroutine(WaitUntilSizeNotZero());
-        for (int i = 0; i < 100; i++){
-            test.Add(Instantiate(buttonPrefab, contentTransform));
-            test[i].GetComponent<Button>().interactable = false;
-        }
+        // for (int i = 0; i < 100; i++){
+        //     test.Add(Instantiate(buttonPrefab, contentTransform));
+        //     test[i].GetComponent<Button>().interactable = false;
+        // }
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(RandomButton());
+        // StartCoroutine(RandomButton());
     }
 
     // Update is called once per frame

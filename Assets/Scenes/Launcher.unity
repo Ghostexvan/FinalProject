@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18043059, g: 0.22116295, b: 0.27965966, a: 1}
+  m_IndirectSpecularColor: {r: 0.18041992, g: 0.22114389, b: 0.2796099, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -5252,6 +5252,7 @@ MonoBehaviour:
   maxPlayersPerRoom: 4
   localPlayerData: {fileID: 11400000, guid: f57b58dc9e910ce458f98a2d529793e7, type: 2}
   carsPool: {fileID: 11400000, guid: c596e77959dbf0d40b74d04af9b4fc60, type: 2}
+  roomInfoObject: {fileID: 7292380506755664962, guid: dfcec06078de0c04fb5c2433aa682bf6, type: 3}
 --- !u!114 &906228440
 MonoBehaviour:
   m_ObjectHideFlags: 0

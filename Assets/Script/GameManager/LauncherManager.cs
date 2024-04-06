@@ -23,6 +23,9 @@ public class LauncherManager : MonoBehaviourPunCallbacks
     [SerializeField]
     private Cars carsPool;
 
+    [SerializeField]
+    private GameObject roomInfoObject;
+
     #endregion
 
     #region Private Fields
@@ -39,7 +42,6 @@ public class LauncherManager : MonoBehaviourPunCallbacks
     private GameObject playerNamePanel;
     private GameObject optionsPanel;
     private GameObject progressPanel;
-    private GameObject roomInfoObject;
     private GameObject roomListContent;
     private GameObject playerListObject;
     private GameObject spawnPosition;
@@ -311,6 +313,7 @@ public class LauncherManager : MonoBehaviourPunCallbacks
                 cachedRoomList[info.Name] = info;
                 if (!cachedRoomObjectList.ContainsKey(info.Name) || cachedRoomObjectList[info.Name] == null)
                 {
+                    Debug.Log(roomInfoObject);
                     cachedRoomObjectList[info.Name] = Instantiate(roomInfoObject, roomListContent.transform);
                 }
                 cachedRoomObjectList[info.Name].transform.GetChild(0).GetComponent<TMP_Text>().text = info.CustomProperties["ROOM_NAME"].ToString();
