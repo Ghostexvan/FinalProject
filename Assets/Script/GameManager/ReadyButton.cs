@@ -6,6 +6,10 @@ using UnityEngine;
 public class ReadyButton : MonoBehaviour
 {
     private void Update() {
+        if (!LauncherManager.Instance.IsLocalPlayerReady()){
+            this.transform.GetChild(0).GetComponent<TMP_Text>().text = "Ready";
+        }
+        
         if (PhotonNetwork.IsMasterClient && !LauncherManager.Instance.CheckAllPlayerReady() && this.transform.GetChild(0).GetComponent<TMP_Text>().text == "Start") {
             this.transform.GetChild(0).GetComponent<TMP_Text>().text = "Cancel Ready";
 
@@ -24,6 +28,9 @@ public class ReadyButton : MonoBehaviour
         } else if (this.transform.GetChild(0).GetComponent<TMP_Text>().text == "Cancel Ready") {
             LauncherManager.Instance.SetPlayerReady();
             this.transform.GetChild(0).GetComponent<TMP_Text>().text = "Ready";
+            if (PhotonNetwork.IsMasterClient){
+                LauncherManager.Instance.OpenRoom();
+            }
             StopAllCoroutines();
         } else if (this.transform.GetChild(0).GetComponent<TMP_Text>().text == "Start") {
             Debug.Log("Starting game!");
@@ -33,7 +40,7 @@ public class ReadyButton : MonoBehaviour
 
     IEnumerator WaitForAllPlayerReady() {
         yield return new WaitUntil(() => LauncherManager.Instance.CheckAllPlayerReady());
-
+        LauncherManager.Instance.CloseRoom();
         this.transform.GetChild(0).GetComponent<TMP_Text>().text = "Start";
     }
 }

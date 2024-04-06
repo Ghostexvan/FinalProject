@@ -10,6 +10,7 @@ using Photon.Pun.UtilityScripts;
 using UnityEngine.UI;
 
 using JSAM;
+using System;
 
 public class LauncherManager : MonoBehaviourPunCallbacks
 {
@@ -217,6 +218,7 @@ public class LauncherManager : MonoBehaviourPunCallbacks
 
     public override void OnLeftRoom()
     {
+        SetPlayerReady();
         Debug.LogWarning("Left the room");
 
         /// Test: When Client/Local Player (you) left the room, stops all Room sounds that was played (if it is still playing)
@@ -226,7 +228,7 @@ public class LauncherManager : MonoBehaviourPunCallbacks
     }
 
     public override void OnLeftLobby()
-    {
+    {   
         Debug.LogWarning("Left the lobby");
     }
 
@@ -248,13 +250,20 @@ public class LauncherManager : MonoBehaviourPunCallbacks
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        Debug.LogWarning("Player " + otherPlayer.NickName + " has left the room!");
-
         /// Test: Plays sound if remote player(s) left the room
         AudioManager.PlaySound(MainGameSounds.alert_clink);
 
-        playerListObject.transform.GetChild(otherPlayer.GetPlayerNumber()).transform.GetChild(0).GetComponent<TMP_Text>().text = "Wait for player...";
-        playerListObject.transform.GetChild(otherPlayer.GetPlayerNumber()).transform.GetChild(1).GetComponent<Toggle>().isOn = false;
+        try{
+            playerListObject.transform.GetChild(otherPlayer.GetPlayerNumber()).transform.GetChild(0).GetComponent<TMP_Text>().text = "Wait for player...";
+            playerListObject.transform.GetChild(otherPlayer.GetPlayerNumber()).transform.GetChild(1).GetComponent<Toggle>().isOn = false;
+        } catch (Exception error){
+
+        }
+    }
+
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+        Back();
     }
 
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
@@ -320,6 +329,11 @@ public class LauncherManager : MonoBehaviourPunCallbacks
                 cachedRoomObjectList[info.Name].transform.GetChild(1).GetComponent<TMP_Text>().text = info.IsOpen && info.PlayerCount < info.MaxPlayers ? "Open" : "Closed";
                 cachedRoomObjectList[info.Name].transform.GetChild(2).GetComponent<TMP_Text>().text = "Number of player in room: " + info.PlayerCount + "/" + info.MaxPlayers;
                 cachedRoomObjectList[info.Name].GetComponent<RoomButton>().SetRoomCode(info.Name);
+                if (!info.IsOpen || info.PlayerCount == info.MaxPlayers){
+                    cachedRoomObjectList[info.Name].GetComponent<Button>().interactable = false;
+                } else {
+                    cachedRoomObjectList[info.Name].GetComponent<Button>().interactable = true;
+                }
             }
         }
     }
@@ -441,6 +455,10 @@ public class LauncherManager : MonoBehaviourPunCallbacks
         PhotonNetwork.LocalPlayer.SetCustomProperties(readyProperty);
     }
 
+    public bool IsLocalPlayerReady(){
+        return PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("Ready") && (bool)PhotonNetwork.LocalPlayer.CustomProperties["Ready"] == true;
+    }
+
     public bool CheckAllPlayerReady()
     {
         foreach (Player player in PhotonNetwork.PlayerList)
@@ -452,6 +470,14 @@ public class LauncherManager : MonoBehaviourPunCallbacks
         }
 
         return true;
+    }
+
+    public void CloseRoom(){
+        PhotonNetwork.CurrentRoom.IsOpen = false;
+    }
+
+    public void OpenRoom(){
+        PhotonNetwork.CurrentRoom.IsOpen = true;
     }
 
     public void StartGame()
