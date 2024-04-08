@@ -11,4 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Track/Cartoon Track Test.unity
     guid: 007998446adaad2429807f001c63a568
+  - enabled: 1
+    path: Assets/Scenes/Track/Mario Circuit.unity
+    guid: 098a88ecbd1fe444cbc90b3d59d8b71d
   m_configObjects: {}

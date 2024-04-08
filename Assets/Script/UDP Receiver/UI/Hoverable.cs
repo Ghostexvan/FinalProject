@@ -1,4 +1,4 @@
-using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -7,6 +7,7 @@ public class Hoverable : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 {
     //[SerializeField]
     private SoundHandler soundHandler;
+    private bool isExit;
 
     private void Awake()
     {
@@ -17,17 +18,23 @@ public class Hoverable : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         // Awake won't run for some GameObjects IF they're inactive (activeIH = False), but if
         // they do manage to become active then we'll still be able to get SoundHandler nonetheless.
     }
-
+    
     public void OnPointerEnter(PointerEventData eventData)
     {
         Debug.Log("[MOUSE INFO] Mouse hovering over: " + this.gameObject.name);
-        MouseController.Instance.SetHoveringObject(this.gameObject);
 
-        // This is pretty scuffed but it works
-        // Basically this checks whether our cursor has entered (hovered) over a Button or not,
-        // if it has then PlaySoundHover will be called
-        if (this.gameObject.GetComponent<Button>() != null)
-        {
+        if (TryGetComponent<Button>(out Button button) || TryGetComponent<TMP_Dropdown>(out TMP_Dropdown dropdown)){
+            MouseController.Instance.SetHoveringButton(this.gameObject);
+            soundHandler.PlaySoundHover();
+        }
+        
+        if (TryGetComponent<ScrollRect>(out ScrollRect scrollRect) || TryGetComponent<CarSelectView>(out CarSelectView carSelectView) || TryGetComponent<TMP_Dropdown>(out TMP_Dropdown _dropdown)){
+            MouseController.Instance.SetHoveringScrollView(this.gameObject);
+            soundHandler.PlaySoundHover();
+        }
+        
+        if (TryGetComponent<Slider>(out Slider slider)){
+            MouseController.Instance.SetHoveringSlider(this.gameObject);
             soundHandler.PlaySoundHover();
         }
     }
@@ -35,12 +42,43 @@ public class Hoverable : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     public void OnPointerExit(PointerEventData eventData)
     {
         Debug.Log("[MOUSE INFO] Mouse exit: " + this.gameObject.name);
-        MouseController.Instance.UnsetHoveringObject();
+        if (TryGetComponent<Button>(out Button button)){
+            MouseController.Instance.UnsetButtonHovering();
+        }
+
+        if (TryGetComponent<TMP_Dropdown>(out TMP_Dropdown dropdown)){
+            MouseController.Instance.UnsetButtonHovering();
+
+            if (isExit){
+                isExit = false;
+                dropdown.Hide();
+            } else {
+                isExit = true;
+            }
+        }
+        
+        if (TryGetComponent<ScrollRect>(out ScrollRect scrollRect) || TryGetComponent<CarSelectView>(out CarSelectView carSelectView) || TryGetComponent<TMP_Dropdown>(out TMP_Dropdown _dropdown)){
+            MouseController.Instance.UnsetScrollViewHovering();
+        }
+        
+        if (TryGetComponent<Slider>(out Slider slider)){
+            MouseController.Instance.UnsetSliderHovering();
+        }
     }
 
     public void OnPointerMove(PointerEventData eventData)
     {
-        Debug.Log("[MOUSE INFO] Mouse hovering (moving) over: " + this.gameObject.name);
-        MouseController.Instance.SetHoveringObject(this.gameObject);
+        Debug.Log("[MOUSE INFO] Mouse hovering over: " + this.gameObject.name);
+        if (TryGetComponent<Button>(out Button button) || TryGetComponent<TMP_Dropdown>(out TMP_Dropdown dropdown)){
+            MouseController.Instance.SetHoveringButton(this.gameObject);
+        }
+        
+        if (TryGetComponent<ScrollRect>(out ScrollRect scrollRect) || TryGetComponent<CarSelectView>(out CarSelectView carSelectView) || TryGetComponent<TMP_Dropdown>(out TMP_Dropdown _dropdown)){
+            MouseController.Instance.SetHoveringScrollView(this.gameObject);
+        }
+        
+        if (TryGetComponent<Slider>(out Slider slider)){
+            MouseController.Instance.SetHoveringSlider(this.gameObject);
+        }
     }
 }

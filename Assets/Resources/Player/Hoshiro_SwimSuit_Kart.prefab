@@ -11489,7 +11489,6 @@ WheelCollider:
   m_WheelDampingRate: 0.25
   m_ForwardFriction:
     m_ExtremumSlip: 0.4
-    m_ExtremumValue: 1
     m_AsymptoteSlip: 0.8
     m_AsymptoteValue: 0.5
     m_Stiffness: 2
@@ -11509,10 +11508,4 @@ MonoBehaviour:
   m_GameObject: {fileID: 7965526204143644956}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 97f619fbd38973e428104eecec5d0e34, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  wheelModel: {fileID: 0}
-  WheelCollider: {fileID: 0}
-  steerable: 1
   motorized: 0
