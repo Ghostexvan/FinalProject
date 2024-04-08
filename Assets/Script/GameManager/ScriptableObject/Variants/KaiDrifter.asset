@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83142b24ec4f5634aba19510b49fd5aa, type: 3}
+  m_Name: KaiDrifter
+  m_EditorClassIdentifier: 
+  variants_:
+  - variantPrefab: {fileID: 2719065537935494604, guid: 445c4d7fd3f6ab44897eb630825a354f, type: 3}
+    variantColor:
+      serializedVersion: 2
+      rgba: 4278190335

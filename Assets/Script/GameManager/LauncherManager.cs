@@ -150,6 +150,7 @@ public class LauncherManager : MonoBehaviourPunCallbacks
                 localPlayerData.GetPlayerVariantIndex()
             )
         );
+
         // playerModel = Instantiate(localPlayerData.GetPlayerPrefab(), spawnPosition.transform.position + new Vector3(0f, 0.5f, 0f) , spawnPosition.transform.rotation);
     }
 
@@ -394,7 +395,10 @@ public class LauncherManager : MonoBehaviourPunCallbacks
     {
         Debug.LogWarning("Options Panel still in development!");
 
-        // historyPanel.Add(optionsPanel);
+        launcherPanel.SetActive(false);
+        optionsPanel.SetActive(true);
+
+        historyPanel.Add(optionsPanel);
     }
 
     public void CreateRoom()

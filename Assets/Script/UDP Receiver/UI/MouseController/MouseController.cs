@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using TMPro;
 
 using JSAM;     // Is only used for the Back() method
 
@@ -11,7 +12,16 @@ public class MouseController : MonoBehaviour
     public static MouseController Instance;
 
     [SerializeField]
-    private GameObject objectCurrentlyHoveringOn = null;
+    private GameObject buttonHoveringOn = null;
+
+    [SerializeField]
+    private GameObject scrollViewHoveringOn = null;
+
+    [SerializeField]
+    private GameObject sliderHoveringOn = null;
+
+    // [SerializeField]
+    // private GameObject 
 
     [SerializeField]
     private float mouseDistanceSensity = 5.0f;
@@ -47,28 +57,52 @@ public class MouseController : MonoBehaviour
 
     }
 
-    public void SetHoveringObject(GameObject gameObject)
+    public void SetHoveringButton(GameObject gameObject)
     {
-        this.objectCurrentlyHoveringOn = gameObject;
+        this.buttonHoveringOn = gameObject;
     }
 
-    public void UnsetHoveringObject()
+    public void UnsetButtonHovering()
     {
-        this.objectCurrentlyHoveringOn = null;
+        this.buttonHoveringOn = null;
+    }
+
+    public void SetHoveringScrollView(GameObject gameObject)
+    {
+        this.scrollViewHoveringOn = gameObject;
+    }
+
+    public void UnsetScrollViewHovering()
+    {
+        this.scrollViewHoveringOn = null;
+    }
+
+    public void SetHoveringSlider(GameObject gameObject)
+    {
+        this.sliderHoveringOn = gameObject;
+    }
+
+    public void UnsetSliderHovering()
+    {
+        this.sliderHoveringOn = null;
     }
 
     public void Click()
     {
-        if (this.objectCurrentlyHoveringOn == null){
+        if (this.buttonHoveringOn == null){
             return;
         }
 
         try {
-            if (this.objectCurrentlyHoveringOn.TryGetComponent<Button>(out Button button)){
-                button.onClick.Invoke();
-            } else if (this.objectCurrentlyHoveringOn.TryGetComponent<Toggle>(out Toggle toggle)){
+            if (this.buttonHoveringOn.TryGetComponent<Toggle>(out Toggle toggle)){
                 if (toggle.interactable){
                     toggle.isOn = true;
+                }
+            } else if (this.buttonHoveringOn.TryGetComponent<Button>(out Button button)){
+                button.onClick.Invoke();
+            } else if (this.buttonHoveringOn.TryGetComponent<TMP_Dropdown>(out TMP_Dropdown dropdown)){
+                if (dropdown.interactable){
+                    dropdown.Show();
                 }
             };
         } catch (Exception error) {
@@ -89,17 +123,18 @@ public class MouseController : MonoBehaviour
 
     public void ScrollUp()
     {
-        if (this.objectCurrentlyHoveringOn == null)
+        if (this.scrollViewHoveringOn == null)
         {
             return;
         }
 
         try
         {
-            if (this.objectCurrentlyHoveringOn.TryGetComponent<ViewScrollable>(out ViewScrollable viewScroll)){
+            if (this.scrollViewHoveringOn.TryGetComponent<ViewScrollable>(out ViewScrollable viewScroll)){
                 viewScroll.ScrollVertical(-1);
-            } else {
-                
+            } else if (this.scrollViewHoveringOn.TryGetComponent<TMP_Dropdown>(out TMP_Dropdown dropdown)){
+                dropdown.value = (dropdown.value + 1) % dropdown.options.Count;
+                dropdown.RefreshShownValue();
             }
         }
         catch (Exception error)
@@ -110,17 +145,20 @@ public class MouseController : MonoBehaviour
 
     public void ScrollDown()
     {
-        if (this.objectCurrentlyHoveringOn == null)
+        if (this.scrollViewHoveringOn == null)
         {
             return;
         }
 
         try
         {
-            if (this.objectCurrentlyHoveringOn.TryGetComponent<ViewScrollable>(out ViewScrollable viewScroll)){
+            if (this.scrollViewHoveringOn.TryGetComponent<ViewScrollable>(out ViewScrollable viewScroll)){
                 viewScroll.ScrollVertical(1);
-            } else {
-                
+            } else if (this.scrollViewHoveringOn.TryGetComponent<TMP_Dropdown>(out TMP_Dropdown dropdown)){
+                dropdown.value = dropdown.value == 0 ?
+                                 dropdown.options.Count - 1 :
+                                 dropdown.value - 1;
+                dropdown.RefreshShownValue();
             }
         }
         catch (Exception error)
@@ -131,17 +169,17 @@ public class MouseController : MonoBehaviour
 
     public void ScrollLeft()
     {
-        if (this.objectCurrentlyHoveringOn == null)
+        if (this.scrollViewHoveringOn == null)
         {
             return;
         }
 
         try
         {
-            if (this.objectCurrentlyHoveringOn.TryGetComponent<ViewScrollable>(out ViewScrollable viewScroll)){
+            if (this.scrollViewHoveringOn.TryGetComponent<ViewScrollable>(out ViewScrollable viewScroll)){
                 viewScroll.ScrollHorizontal(-1);
             } else {
-                if (this.objectCurrentlyHoveringOn.TryGetComponent<CarSelectView>(out CarSelectView carSelectView)){
+                if (this.scrollViewHoveringOn.TryGetComponent<CarSelectView>(out CarSelectView carSelectView)){
                     carSelectView.SwipeNext();
                 }
             }
@@ -154,17 +192,17 @@ public class MouseController : MonoBehaviour
 
     public void ScrollRight()
     {
-        if (this.objectCurrentlyHoveringOn == null)
+        if (this.scrollViewHoveringOn == null)
         {
             return;
         }
 
         try
         {
-            if (this.objectCurrentlyHoveringOn.TryGetComponent<ViewScrollable>(out ViewScrollable viewScroll)){
+            if (this.scrollViewHoveringOn.TryGetComponent<ViewScrollable>(out ViewScrollable viewScroll)){
                 viewScroll.ScrollHorizontal(1);
             } else {
-                if (this.objectCurrentlyHoveringOn.TryGetComponent<CarSelectView>(out CarSelectView carSelectView)){
+                if (this.scrollViewHoveringOn.TryGetComponent<CarSelectView>(out CarSelectView carSelectView)){
                     carSelectView.SwipeBack();
                 }
             }
@@ -176,14 +214,14 @@ public class MouseController : MonoBehaviour
     }
 
     public void SlideUp(){
-        if (this.objectCurrentlyHoveringOn == null)
+        if (this.sliderHoveringOn == null)
         {
             return;
         }
 
         try
         {
-            if (this.objectCurrentlyHoveringOn.TryGetComponent<Slider>(out Slider slider)){
+            if (this.sliderHoveringOn.TryGetComponent<Slider>(out Slider slider)){
                 slider.normalizedValue += verticalSlideStep;
             }
         }
@@ -194,14 +232,14 @@ public class MouseController : MonoBehaviour
     }
 
     public void SlideDown(){
-        if (this.objectCurrentlyHoveringOn == null)
+        if (this.sliderHoveringOn == null)
         {
             return;
         }
 
         try
         {
-            if (this.objectCurrentlyHoveringOn.TryGetComponent<Slider>(out Slider slider)){
+            if (this.sliderHoveringOn.TryGetComponent<Slider>(out Slider slider)){
                 slider.normalizedValue -= verticalSlideStep;
             }
         }
@@ -212,14 +250,14 @@ public class MouseController : MonoBehaviour
     }
 
     public void SlideLeft(){
-        if (this.objectCurrentlyHoveringOn == null)
+        if (this.sliderHoveringOn == null)
         {
             return;
         }
 
         try
         {
-            if (this.objectCurrentlyHoveringOn.TryGetComponent<Slider>(out Slider slider)){
+            if (this.sliderHoveringOn.TryGetComponent<Slider>(out Slider slider)){
                 slider.normalizedValue -= horizontalSlideStep;
             }
         }
@@ -230,14 +268,14 @@ public class MouseController : MonoBehaviour
     }
 
     public void SlideRight(){
-        if (this.objectCurrentlyHoveringOn == null)
+        if (this.sliderHoveringOn == null)
         {
             return;
         }
 
         try
         {
-            if (this.objectCurrentlyHoveringOn.TryGetComponent<Slider>(out Slider slider)){
+            if (this.sliderHoveringOn.TryGetComponent<Slider>(out Slider slider)){
                 slider.normalizedValue += horizontalSlideStep;
             }
         }

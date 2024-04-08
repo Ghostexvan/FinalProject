@@ -56,7 +56,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     #region Public Fields
     public static GameManager Instance;
-    public GameObject playerPrefab;
     public LocalPlayerData playerData;
 
     //[HideInInspector]
@@ -131,12 +130,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     // Start is called before the first frame update
     private void Start()
     {
-        if (playerPrefab == null)
-        {
-            Debug.LogError("<Color=Red><a>Missing</a></Color> player's prefab");
-            return;
-        }
-
         if (CarControl.LocalPlayerInstance == null)
         {
             Debug.LogFormat("Instantiating LocalPlayer (Player {0}) from {1}", PhotonNetwork.LocalPlayer.GetPlayerNumber(), SceneManager.GetActiveScene().name);
@@ -616,6 +609,9 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
                 endPanel.transform.GetChild(0).GetComponent<TMP_Text>().text += TimeSpan.FromSeconds(playerInfos[rankIndex[index]].GetFinishTime() - this.startTime).ToString("mm':'ss':'ff") + "\n";
             }
         }
+
+        yield return new WaitForSeconds(5f);
+        SceneManager.LoadScene("Launcher");
         // }
     }
 

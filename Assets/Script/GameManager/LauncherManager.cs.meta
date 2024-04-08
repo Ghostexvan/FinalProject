@@ -3,7 +3,9 @@ guid: 447ec8881cf76b14793048125d685108
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - localPlayerData: {fileID: 11400000, guid: f57b58dc9e910ce458f98a2d529793e7, type: 2}
+  - carsPool: {fileID: 11400000, guid: c596e77959dbf0d40b74d04af9b4fc60, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
