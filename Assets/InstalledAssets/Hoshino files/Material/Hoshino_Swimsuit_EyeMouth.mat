@@ -125,7 +125,7 @@ Material:
     - _frensel_hard: 1
     - _frensel_power: 0.3368064
     - _frensel_range: 0.5524385
-    - _shadow_clip: 0.64
+    - _shadow_clip: 0
     - _shadow_edge: 0
     m_Colors:
     - _ASEOutlineColor: {r: 0, g: 0, b: 0, a: 0}

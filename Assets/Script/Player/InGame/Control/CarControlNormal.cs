@@ -332,14 +332,14 @@ public class CarControlNormal : MonoBehaviourPunCallbacks, IPunObservable
         // Check whether the user input is in the same direction 
         // as the car's velocity
         // Chỉ so sánh hướng khi độ chênh lệch giữa forwardSpeed và vInput lớn hơn 1 khoảng cho trước (threshold) là 0.01f.
-        // Và CHỈ thực hiện so sánh hướng khi độ chênh leehcj lớn hơn threshold.
+        // Và CHỈ thực hiện so sánh hướng khi độ chênh lệch lớn hơn threshold.
         // Nếu nhỏ hơn thì ta mặc định là xe đang đứng yên, và khi đó, ta muốn xe di chuyển nên isAccelerating sẽ trả giá trị True.
         bool isAccelerating = Mathf.Abs(forwardSpeed) - Mathf.Abs(vInput) - 0.01f > 0 ? Mathf.Sign(vInput) == Mathf.Sign(forwardSpeed) : true;
 
         //print("speedFactor:" + speedFactor);
         //print("currentMotorTorque: " + currentMotorTorque);
-        print("Mathf.Sign(vInput): " + Mathf.Sign(vInput));
-        print("Mathf.Sign(forwardSpeed): " + Mathf.Sign(forwardSpeed));
+        //print("Mathf.Sign(vInput): " + Mathf.Sign(vInput));
+        //print("Mathf.Sign(forwardSpeed): " + Mathf.Sign(forwardSpeed));
 
         foreach (var wheel in wheels)
         {

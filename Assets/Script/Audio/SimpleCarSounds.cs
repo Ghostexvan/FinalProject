@@ -60,7 +60,8 @@ public class SimpleCarSounds : MonoBehaviour
         carRb = this.gameObject.GetComponent<Rigidbody>();
         carAudio = this.gameObject.GetComponent<AudioSource>();
 
-        cctrl = this.gameObject.GetComponent<CarControl>();
+        //cctrl = this.gameObject.GetComponent<CarControl>();
+
         //ccn = this.gameObject.GetComponent<CarControlNormal>();
 
         //gm = GameObject.Find("GameManager").GetComponent<GameManager>();

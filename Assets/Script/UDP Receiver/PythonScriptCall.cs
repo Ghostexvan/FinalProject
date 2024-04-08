@@ -25,11 +25,11 @@ public class PythonScriptCall : MonoBehaviour
         {
             if (SceneManager.GetActiveScene().name.Equals("Launcher", StringComparison.OrdinalIgnoreCase))
             {
-                pythonAppPath = Application.dataPath + "/../" + "Hand Gesture Controller/Hand Gesture Controller.exe";
+                pythonAppPath = Application.dataPath + "/../" + "dist/" + "Hand Gesture Controller v1.2/Hand Gesture Controller.exe";
             }
             else
             {
-                pythonAppPath = Application.dataPath + "/../" + "10F TFLite - MediaPipe Holistic Demo/10F TFLite - MediaPipe Holistic Demo.exe";
+                pythonAppPath = Application.dataPath + "/../" + "dist/" + "10F TFLite - MediaPipe Holistic Demo/10F TFLite - MediaPipe Holistic Demo.exe";
             }
         }    
     }
@@ -43,7 +43,7 @@ public class PythonScriptCall : MonoBehaviour
             if (isActive)
             {
                 UnityEngine.Debug.LogWarning("[APP INFO] " + pythonAppPath);
-                // StartCoroutine(RunOnStart());
+                StartCoroutine(RunOnStart());
             }
             else
             {
@@ -57,7 +57,7 @@ public class PythonScriptCall : MonoBehaviour
             if (isActive)
             {
                 UnityEngine.Debug.LogWarning("[APP INFO] " + pythonAppPath);
-                // StartCoroutine(RunOnStart());
+                StartCoroutine(RunOnStart());
             }
             else
             {
@@ -81,6 +81,12 @@ public class PythonScriptCall : MonoBehaviour
         appInfo.FileName = pythonAppPath;
 
         appProcess = Process.Start(appInfo);
+
+        if (appProcess == null)
+        {
+            UnityEngine.Debug.LogWarning("App file does not exist! Stopping RunOnStart.");
+            yield break;
+        }
 
         yield return null;
     }

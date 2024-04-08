@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -59,6 +59,9 @@ public class GameplayMusicHandler : MonoBehaviour
             return;
         }
 
+        /// Tại thời điểm này, ta lấy được GameManager Singleton instance vì:
+        /// + GameObj GameManager có sẵn trong Scene.
+        /// + Ta đang ở trong Update(), dù trong Build thì tại thời điểm này, đa phần mọi thứ đã được initialized.
         isGameStart = GameManager.Instance.GetGameStatus();
         isAllPlayersFinished = GameManager.Instance.IsAllPlayersFinished();
         isFinalLap = lc.isFinalLap;         /// Problem lies here apparently
