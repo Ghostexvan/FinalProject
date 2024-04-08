@@ -3,6 +3,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using JSAM;
 
 public class CarSelectButton : MonoBehaviour
 {
@@ -59,6 +60,9 @@ public class CarSelectButton : MonoBehaviour
         this.displayCarName.text = LauncherManager.Instance.GetCarsPool().GetCarName(carIndex);
         this.displayCarDescription.text = LauncherManager.Instance.GetCarsPool().GetCarDesciption(carIndex);
 
+        /// Test: Stops Hoshilo sound if there's any currently playing
+        AudioManager.StopSoundIfPlaying(MainGameSounds.Hoshilo_Selected_);
+
         LauncherManager.Instance.SpawnCarModel(LauncherManager.Instance.GetCarsPool().GetCarPrefab(this.carIndex, this.variantIndex));
         SpawnPagination();
         SetButtonStatus();
@@ -74,6 +78,10 @@ public class CarSelectButton : MonoBehaviour
 
         this.displayCarName.text = LauncherManager.Instance.GetCarsPool().GetCarName(carIndex);
         this.displayCarDescription.text = LauncherManager.Instance.GetCarsPool().GetCarDesciption(carIndex);
+
+
+        /// Test: Stops Hoshilo sound if there's any currently playing
+        AudioManager.StopSoundIfPlaying(MainGameSounds.Hoshilo_Selected_);
 
         LauncherManager.Instance.SpawnCarModel(LauncherManager.Instance.GetCarsPool().GetCarPrefab(this.carIndex, this.variantIndex));
         SpawnPagination();
@@ -95,6 +103,12 @@ public class CarSelectButton : MonoBehaviour
             return;
         }
 
+        //// Test: Car Select Button sound (MOVED TO PaginationButton.cs since this conflicted with NextCar and PrevCar's SFX)
+        /// I added this since we can't really access the Color Variants in the Inspector
+        /// rather these Toggles are spawned using CarSelectButton.cs --> SpawnPagination()
+        //AudioManager.StopSoundIfPlaying(MainGameSounds.menu_accept);
+        //AudioManager.PlaySound(MainGameSounds.Hoshilo_Selected_1_); //Test
+
         LauncherManager.Instance.SpawnCarModel(LauncherManager.Instance.GetCarsPool().GetCarPrefab(this.carIndex, this.variantIndex));
         SetButtonStatus();
     }
@@ -105,6 +119,18 @@ public class CarSelectButton : MonoBehaviour
 
         PlayerPrefs.SetInt("Player Car Index", carIndex);
         PlayerPrefs.SetInt("Player Variant Index", variantIndex);
+
+        //// Test: Plays sound when Hoshilo is selected
+        if (carIndex == 2)
+        {
+            AudioManager.StopSoundIfPlaying(MainGameSounds.Hoshilo_Selected_);
+            AudioManager.PlaySound(MainGameSounds.Hoshilo_Selected_);
+        }
+        else
+        {
+            AudioManager.StopSoundIfPlaying(MainGameSounds.Hoshilo_Selected_);
+        }
+
         SetButtonStatus();
     }
 
@@ -149,6 +175,9 @@ public class CarSelectButton : MonoBehaviour
 
             Debug.Log("Spawn pagination at index " + index + "/" + LauncherManager.Instance.GetCarsPool().GetCarVariants(this.carIndex).GetTotalVariants());
             this.paginationButtons[index].GetComponent<PaginationButton>().SetButtonInfo(this, index);
+            
+            // Initialize all the Toggles with PaginationButton.isPlaySound as true
+            this.paginationButtons[index].GetComponent<PaginationButton>().isPlaySound = true;
             this.paginationButtons[index].transform.GetChild(0).GetComponent<Image>().color = new Color32(
                 LauncherManager.Instance.GetCarsPool().GetCarVariants(this.carIndex).GetVariantColor(index).r, 
                 LauncherManager.Instance.GetCarsPool().GetCarVariants(this.carIndex).GetVariantColor(index).g,
@@ -157,7 +186,17 @@ public class CarSelectButton : MonoBehaviour
             );
 
             if (index == this.variantIndex){
+                //// Changing PaginationButton's isPlaySound to False FIRST (before the line below)
+                /// to prevent SFX from triggering, since the line below counts as a OnValueChanged callback.
+                /// More details in the PaginationButton.cs script.
+                this.paginationButtons[index].GetComponent<PaginationButton>().isPlaySound = false;
+                /// The rest of the PaginationButton has isPlaySound = true as default though.
+                /// Only this one (with isOn = true) had gotten its isPlaySound changed.
+
+                //// This counts as a OnValueChanged callback
                 this.paginationButtons[index].GetComponent<Toggle>().isOn = true;
+
+
             }
         }
     }

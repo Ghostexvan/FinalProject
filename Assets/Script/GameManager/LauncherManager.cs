@@ -9,6 +9,9 @@ using TMPro;
 using Photon.Pun.UtilityScripts;
 using UnityEngine.UI;
 
+using JSAM;
+using System;
+
 public class LauncherManager : MonoBehaviourPunCallbacks
 {
     #region Private Serializable Fields
@@ -20,6 +23,9 @@ public class LauncherManager : MonoBehaviourPunCallbacks
 
     [SerializeField]
     private Cars carsPool;
+
+    [SerializeField]
+    private GameObject roomInfoObject;
 
     #endregion
 
@@ -37,7 +43,6 @@ public class LauncherManager : MonoBehaviourPunCallbacks
     private GameObject playerNamePanel;
     private GameObject optionsPanel;
     private GameObject progressPanel;
-    private GameObject roomInfoObject;
     private GameObject roomListContent;
     private GameObject playerListObject;
     private GameObject spawnPosition;
@@ -214,11 +219,17 @@ public class LauncherManager : MonoBehaviourPunCallbacks
 
     public override void OnLeftRoom()
     {
+        SetPlayerReady();
         Debug.LogWarning("Left the room");
+
+        /// Test: When Client/Local Player (you) left the room, stops all Room sounds that was played (if it is still playing)
+        AudioManager.StopSoundIfPlaying(MainGameSounds.beep_synthtone01);
+        AudioManager.StopSoundIfPlaying(MainGameSounds.alert_clink);
+        AudioManager.StopSoundIfPlaying(MainGameSounds.menu_click01);
     }
 
     public override void OnLeftLobby()
-    {
+    {   
         Debug.LogWarning("Left the lobby");
     }
 
@@ -233,13 +244,27 @@ public class LauncherManager : MonoBehaviourPunCallbacks
         StartCoroutine(WaitUntilPlayerConnectedAndReady(newPlayer));
         // playerListObject.transform.GetChild(newPlayer.GetPlayerNumber()).transform.GetChild(0).GetComponent<TMP_Text>().text = PhotonNetwork.LocalPlayer.NickName;
         // playerListObject.transform.GetChild(newPlayer.GetPlayerNumber()).transform.GetChild(1).GetComponent<Toggle>().isOn = false;
+
+        /// Test: Plays sound when remote player(s) entered the room
+        AudioManager.PlaySound(MainGameSounds.beep_synthtone01);
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        Debug.LogWarning("Player " + otherPlayer.NickName + " has left the room!");
-        playerListObject.transform.GetChild(otherPlayer.GetPlayerNumber()).transform.GetChild(0).GetComponent<TMP_Text>().text = "Wait for player...";
-        playerListObject.transform.GetChild(otherPlayer.GetPlayerNumber()).transform.GetChild(1).GetComponent<Toggle>().isOn = false;
+        /// Test: Plays sound if remote player(s) left the room
+        AudioManager.PlaySound(MainGameSounds.alert_clink);
+
+        try{
+            playerListObject.transform.GetChild(otherPlayer.GetPlayerNumber()).transform.GetChild(0).GetComponent<TMP_Text>().text = "Wait for player...";
+            playerListObject.transform.GetChild(otherPlayer.GetPlayerNumber()).transform.GetChild(1).GetComponent<Toggle>().isOn = false;
+        } catch (Exception error){
+
+        }
+    }
+
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+        Back();
     }
 
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
@@ -249,6 +274,12 @@ public class LauncherManager : MonoBehaviourPunCallbacks
         if (changedProps.ContainsKey("Ready"))
         {
             playerListObject.transform.GetChild(targetPlayer.GetPlayerNumber()).transform.GetChild(1).GetComponent<Toggle>().isOn = (bool)changedProps["Ready"];
+
+            ////// Test: Plays sound if a player is ready (Both client/local and remote players)
+            if ((bool)changedProps["Ready"] == true)
+            {
+                AudioManager.PlaySound(MainGameSounds.menu_click01);
+            }
         }
     }
 
@@ -292,12 +323,18 @@ public class LauncherManager : MonoBehaviourPunCallbacks
                 cachedRoomList[info.Name] = info;
                 if (!cachedRoomObjectList.ContainsKey(info.Name) || cachedRoomObjectList[info.Name] == null)
                 {
+                    Debug.Log(roomInfoObject);
                     cachedRoomObjectList[info.Name] = Instantiate(roomInfoObject, roomListContent.transform);
                 }
                 cachedRoomObjectList[info.Name].transform.GetChild(0).GetComponent<TMP_Text>().text = info.CustomProperties["ROOM_NAME"].ToString();
                 cachedRoomObjectList[info.Name].transform.GetChild(1).GetComponent<TMP_Text>().text = info.IsOpen && info.PlayerCount < info.MaxPlayers ? "Open" : "Closed";
                 cachedRoomObjectList[info.Name].transform.GetChild(2).GetComponent<TMP_Text>().text = "Number of player in room: " + info.PlayerCount + "/" + info.MaxPlayers;
                 cachedRoomObjectList[info.Name].GetComponent<RoomButton>().SetRoomCode(info.Name);
+                if (!info.IsOpen || info.PlayerCount == info.MaxPlayers){
+                    cachedRoomObjectList[info.Name].GetComponent<Button>().interactable = false;
+                } else {
+                    cachedRoomObjectList[info.Name].GetComponent<Button>().interactable = true;
+                }
             }
         }
     }
@@ -311,6 +348,18 @@ public class LauncherManager : MonoBehaviourPunCallbacks
     #endregion
 
     #region Public Methods
+    /// <summary>
+    /// Test: Method to PlaySound when a button is pressed
+    /// Most are migrated to SoundHandler.cs in SFX Handler GameObject
+    /// </summary>
+    //public void PlaySound()
+    //{
+    //    // I didn't add StopSoundIfPlaying here since I don't think it's really needed?
+    //    // I added it though
+    //    AudioManager.StopSoundIfPlaying(MainGameSounds.menu_accept);
+    //    AudioManager.PlaySound(MainGameSounds.menu_accept);
+    //}
+
     public void EnterLobby()
     {
         if (PhotonNetwork.IsConnected)
@@ -410,6 +459,10 @@ public class LauncherManager : MonoBehaviourPunCallbacks
         PhotonNetwork.LocalPlayer.SetCustomProperties(readyProperty);
     }
 
+    public bool IsLocalPlayerReady(){
+        return PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("Ready") && (bool)PhotonNetwork.LocalPlayer.CustomProperties["Ready"] == true;
+    }
+
     public bool CheckAllPlayerReady()
     {
         foreach (Player player in PhotonNetwork.PlayerList)
@@ -421,6 +474,14 @@ public class LauncherManager : MonoBehaviourPunCallbacks
         }
 
         return true;
+    }
+
+    public void CloseRoom(){
+        PhotonNetwork.CurrentRoom.IsOpen = false;
+    }
+
+    public void OpenRoom(){
+        PhotonNetwork.CurrentRoom.IsOpen = true;
     }
 
     public void StartGame()

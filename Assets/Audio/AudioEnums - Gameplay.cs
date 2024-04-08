@@ -1,0 +1,35 @@
+    public enum GameplaySounds {
+        highACC,
+        highDeacc,
+        low,
+        BubblesLoop,
+        highACC_,
+        highDeacc_,
+        low_,
+        Hoshilo_Boost_1_,
+        Hoshilo_Boost_2_,
+        Hoshilo_Boost_3_,
+        Hoshilo_Boost_4_,
+        Hoshilo_Boost_5_,
+        Hoshilo_Boost_6_,
+        Hoshilo_Lost_1_,
+        Hoshilo_Lost_2_,
+        Hoshilo_PassingPlayer_1_,
+        Hoshilo_PassingPlayer_2_,
+        Hoshilo_Start_,
+        Hoshilo_Victory_1_,
+        Finish,
+        menu_back,
+        menu_accept,
+        SE_RC_321,
+        SE_RC_GO,
+        SE_RC_FINISH_1,
+        SE_RC_FINISH_2,
+        SE_RC_START_ENDING_COUNTDOWN,
+        SE_RC_FINISH
+    }
+    public enum GameplayMusic {
+        LuigiCircuitMarioCircuitYoshiCircuitLoopable,
+        Apollo440HoldTheBrakes,
+        InitialDArcadeStage8InfinityResultThemeLoopable
+    }

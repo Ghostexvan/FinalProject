@@ -8,6 +8,8 @@ using Photon.Realtime;
 using System.Collections;
 using TMPro;
 
+using JSAM;
+
 // Class nay duoc su dung de nhap ten nguoi choi. Ten nay se xuat hien tren nguoi choi
 // Can component TMP_InputField de su dung duoc class nay
 [RequireComponent(typeof(TMP_InputField))]
@@ -59,6 +61,12 @@ public class PlayerNameInputField : MonoBehaviour{
 
         // Luu ten nguoi choi vao PlayerPrefs
         PlayerPrefs.SetString(playerNamePrefKey, value);
+    }
+
+    // Test: Them sound khi chon vao field dien ten
+    public void PlaySound()
+    {
+        AudioManager.PlaySound(MainGameSounds.menu_accept);
     }
 
     #endregion

@@ -99,7 +99,7 @@ public class UDPSocketTest1 : MonoBehaviour
         vInputText = GameObject.Find("V-INPUT (TMP)").GetComponent<TMP_Text>();
 
         // Grabs the CarControlNormal component
-        // ccn = GameObject.Find("Race Car Byst").GetComponent<CarControlNormal>();
+        //ccn = GameObject.Find("Race Car Byst").GetComponent<CarControlNormal>();
         ccn = GameObject.FindGameObjectWithTag("Player").GetComponent<CarControlNormal>();
     }
 

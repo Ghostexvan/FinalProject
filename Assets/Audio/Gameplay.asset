@@ -1,0 +1,108 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2204bf128383ced4f8a374a536984a4c, type: 3}
+  m_Name: Gameplay
+  m_EditorClassIdentifier: 
+  soundCategories:
+  - Engines
+  - Hoshilo Voicelines
+  - UI
+  musicCategories:
+  - 
+  Sounds:
+  - {fileID: 11400000, guid: 7f62f96ae69f0ad4baa52ddd06beb035, type: 2}
+  - {fileID: 11400000, guid: 5730c48b367a6a244b8c7b8f5c3f4168, type: 2}
+  - {fileID: 11400000, guid: 999263fe4290c3f43976c5e825a3fb27, type: 2}
+  - {fileID: 11400000, guid: d6844c24e9406584eb26c8d3aabcd48b, type: 2}
+  - {fileID: 11400000, guid: 616c9672ae4c5264c85bd77d712bdfe2, type: 2}
+  - {fileID: 11400000, guid: f6d072c68090c5148887e8d362f0ed4e, type: 2}
+  - {fileID: 11400000, guid: 09b8636f109e2704c9b33a739759fb34, type: 2}
+  - {fileID: 11400000, guid: 110d5ef855ffc2341a6294bc3a56b975, type: 2}
+  - {fileID: 11400000, guid: c8972cc4831d8bb4a909d92799afbbfc, type: 2}
+  - {fileID: 11400000, guid: bb17fc33497c11f4f8310a7229e05cc5, type: 2}
+  - {fileID: 11400000, guid: 76e7004bd88779d4294667bd47616437, type: 2}
+  - {fileID: 11400000, guid: 8205053bbe3f2ca48b6f8517c949c764, type: 2}
+  - {fileID: 11400000, guid: 956e8847510c78643b51adafe93439ff, type: 2}
+  - {fileID: 11400000, guid: 9457dfc3643222c47a04b36cf7e4a0a8, type: 2}
+  - {fileID: 11400000, guid: e3037916613fe9c43b8eda672214d88b, type: 2}
+  - {fileID: 11400000, guid: d164e7fbb36af1c48a093d41d6c07676, type: 2}
+  - {fileID: 11400000, guid: 2151dc23b612db94ebe7930e55d804c8, type: 2}
+  - {fileID: 11400000, guid: c2b2d0d163e30be40bb856d8f36b9892, type: 2}
+  - {fileID: 11400000, guid: 1cfb3032d7728d143bbdf976bbf5dbf7, type: 2}
+  - {fileID: 11400000, guid: 492f24d4a657fbf43918d85a70c07d72, type: 2}
+  - {fileID: 11400000, guid: 549478e5ca7385943950f54bc196cb8f, type: 2}
+  - {fileID: 11400000, guid: e326aa6283642924db37e20942e30c79, type: 2}
+  - {fileID: 11400000, guid: a153ecf9df9c16140a9b5be0a0f51fb4, type: 2}
+  - {fileID: 11400000, guid: c67bdd048474e8547888928957d8891c, type: 2}
+  - {fileID: 11400000, guid: a19e5c4a0a644b24ea58a6181c426a8e, type: 2}
+  - {fileID: 11400000, guid: 6df95245900c7c4438e31f4b9494950f, type: 2}
+  - {fileID: 11400000, guid: 8e1cd8b64022444428dcce44cc36a589, type: 2}
+  - {fileID: 11400000, guid: 99f89b662ba2c2d4aa6285a8fbda0550, type: 2}
+  Music:
+  - {fileID: 11400000, guid: 6ae5a5ea49fbadb4581e9ec5d29c9379, type: 2}
+  - {fileID: 11400000, guid: 714d854f81454a64fa2944e781dd9621, type: 2}
+  - {fileID: 11400000, guid: 4e3aa5488001f024a87d75b7a404d530, type: 2}
+  useCustomNames: 0
+  generatedName: Gameplay
+  musicEnum: 
+  musicEnumGenerated: GameplayMusic
+  musicNamespace: 
+  musicNamespaceGenerated: 
+  soundEnum: 
+  soundEnumGenerated: GameplaySounds
+  soundNamespace: 
+  soundNamespaceGenerated: 
+  soundCategoriesToList:
+  - name: Engines
+    files:
+    - {fileID: 11400000, guid: 7f62f96ae69f0ad4baa52ddd06beb035, type: 2}
+    - {fileID: 11400000, guid: 5730c48b367a6a244b8c7b8f5c3f4168, type: 2}
+    - {fileID: 11400000, guid: 999263fe4290c3f43976c5e825a3fb27, type: 2}
+    - {fileID: 11400000, guid: d6844c24e9406584eb26c8d3aabcd48b, type: 2}
+    - {fileID: 11400000, guid: 616c9672ae4c5264c85bd77d712bdfe2, type: 2}
+    - {fileID: 11400000, guid: f6d072c68090c5148887e8d362f0ed4e, type: 2}
+    - {fileID: 11400000, guid: 09b8636f109e2704c9b33a739759fb34, type: 2}
+    foldout: 1
+  - name: Hoshilo Voicelines
+    files:
+    - {fileID: 11400000, guid: 110d5ef855ffc2341a6294bc3a56b975, type: 2}
+    - {fileID: 11400000, guid: c8972cc4831d8bb4a909d92799afbbfc, type: 2}
+    - {fileID: 11400000, guid: bb17fc33497c11f4f8310a7229e05cc5, type: 2}
+    - {fileID: 11400000, guid: 76e7004bd88779d4294667bd47616437, type: 2}
+    - {fileID: 11400000, guid: 8205053bbe3f2ca48b6f8517c949c764, type: 2}
+    - {fileID: 11400000, guid: 956e8847510c78643b51adafe93439ff, type: 2}
+    - {fileID: 11400000, guid: 9457dfc3643222c47a04b36cf7e4a0a8, type: 2}
+    - {fileID: 11400000, guid: e3037916613fe9c43b8eda672214d88b, type: 2}
+    - {fileID: 11400000, guid: d164e7fbb36af1c48a093d41d6c07676, type: 2}
+    - {fileID: 11400000, guid: 2151dc23b612db94ebe7930e55d804c8, type: 2}
+    - {fileID: 11400000, guid: c2b2d0d163e30be40bb856d8f36b9892, type: 2}
+    - {fileID: 11400000, guid: 1cfb3032d7728d143bbdf976bbf5dbf7, type: 2}
+    foldout: 1
+  - name: UI
+    files:
+    - {fileID: 11400000, guid: 492f24d4a657fbf43918d85a70c07d72, type: 2}
+    - {fileID: 11400000, guid: 549478e5ca7385943950f54bc196cb8f, type: 2}
+    - {fileID: 11400000, guid: e326aa6283642924db37e20942e30c79, type: 2}
+    - {fileID: 11400000, guid: a153ecf9df9c16140a9b5be0a0f51fb4, type: 2}
+    - {fileID: 11400000, guid: c67bdd048474e8547888928957d8891c, type: 2}
+    - {fileID: 11400000, guid: a19e5c4a0a644b24ea58a6181c426a8e, type: 2}
+    - {fileID: 11400000, guid: 6df95245900c7c4438e31f4b9494950f, type: 2}
+    - {fileID: 11400000, guid: 8e1cd8b64022444428dcce44cc36a589, type: 2}
+    - {fileID: 11400000, guid: 99f89b662ba2c2d4aa6285a8fbda0550, type: 2}
+    foldout: 1
+  musicCategoriesToList:
+  - name: 
+    files:
+    - {fileID: 11400000, guid: 6ae5a5ea49fbadb4581e9ec5d29c9379, type: 2}
+    - {fileID: 11400000, guid: 714d854f81454a64fa2944e781dd9621, type: 2}
+    - {fileID: 11400000, guid: 4e3aa5488001f024a87d75b7a404d530, type: 2}
+    foldout: 1

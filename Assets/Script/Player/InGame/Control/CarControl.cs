@@ -10,6 +10,8 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
     public bool isStop = false;
     public static GameObject LocalPlayerInstance;
     public float motorTorque = 2000;
+    [HideInInspector]
+    public float currentMotorTorque;
     public float brakeTorque = 2000;
     public float maxSpeed = 20;
     public float steeringRange = 30;
@@ -92,6 +94,8 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
+        // Gửi theo thứ tự sao thì nhận (read) theo thứ tự vậy, vì ngoài bản thân LocalPlayer thì các người chơi khác
+        // cũng sẽ write/SendNext theo cùng format/thứ tự này.
         if (stream.IsWriting)
         {
             stream.SendNext(vInput);
@@ -127,6 +131,9 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
 
             udpsock = GameObject.Find("GameManager").GetComponent<UDPSocketTest_Controller>();
         }
+        
+        // Init currentMotorTorque
+        currentMotorTorque = 0f;
 
         // DontDestroyOnLoad(this.gameObject);
 
@@ -295,7 +302,7 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
 
         // Use that to calculate how much torque is available 
         // (zero torque at top speed)
-        float currentMotorTorque = Mathf.Lerp(motorTorque, 0, speedFactor);
+        currentMotorTorque = Mathf.Lerp(motorTorque, 0, speedFactor);
 
         // …and to calculate how much to steer 
         // (the car steers more gently at top speed)
@@ -303,7 +310,10 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
 
         // Check whether the user input is in the same direction 
         // as the car's velocity
-        bool isAccelerating = Mathf.Sign(vInput) == Mathf.Sign(forwardSpeed);
+        // Chỉ so sánh hướng khi độ chênh lệch giữa forwardSpeed và vInput lớn hơn 1 khoảng cho trước (threshold) là 0.01f.
+        // Và CHỈ thực hiện so sánh hướng khi độ chênh leehcj lớn hơn threshold.
+        // Nếu nhỏ hơn thì ta mặc định là xe đang đứng yên, và khi đó, ta muốn xe di chuyển nên isAccelerating sẽ trả giá trị True.
+        bool isAccelerating = Mathf.Abs(forwardSpeed) - Mathf.Abs(vInput) - 0.01f > 0 ? Mathf.Sign(vInput) == Mathf.Sign(forwardSpeed) : true;
 
         foreach (var wheel in wheels)
         {
@@ -319,6 +329,15 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
                 wheel.WheelCollider.brakeTorque = Mathf.Abs(brakeVal) * brakeTorque;
                 wheel.WheelCollider.motorTorque = 0;
                 continue;   // Skipping the rest of the loop
+            }
+            else
+            {
+                // I think I forgot to re-adjust the value of brakeTorque WHEN we stopped braking.
+                /// So when I brake using Spacebar, "brakeCall" will be True and wheel.WheelCollider.brakeTorque will increase.
+                /// And when I'd completely stopped, "brakeCall" will be False, but wheel.WheelCollider.brakeTorque won't be changed (since I forgot to make it change).
+                
+                wheel.WheelCollider.brakeTorque = 0f;
+                
             }
 
             if (isAccelerating)

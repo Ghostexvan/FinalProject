@@ -4,6 +4,8 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using TMPro;
 
+using JSAM;     // Is only used for the Back() method
+
 
 public class MouseController : MonoBehaviour
 {
@@ -287,6 +289,9 @@ public class MouseController : MonoBehaviour
         try {
             if (LauncherManager.Instance != null){
                 LauncherManager.Instance.Back();
+
+                AudioManager.StopSoundIfPlaying(MainGameSounds.Back);
+                AudioManager.PlaySound(MainGameSounds.Back);
             }
         } catch (Exception error){
             Debug.LogError("[MOUSE WARNING] Cannot backing: " + error);

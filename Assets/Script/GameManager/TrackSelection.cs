@@ -5,6 +5,8 @@ using Photon.Pun;
 using TMPro;
 using UnityEngine;
 
+using JSAM;
+
 public class TrackSelection : MonoBehaviour
 {
     [SerializeField]
@@ -37,6 +39,11 @@ public class TrackSelection : MonoBehaviour
         ExitGames.Client.Photon.Hashtable trackSelection = PhotonNetwork.LocalPlayer.CustomProperties;
         trackSelection["Track"] = this.GetComponent<TMP_Dropdown>().value;
         PhotonNetwork.LocalPlayer.SetCustomProperties(trackSelection);
+
+        /// Test: ...This seems weird, but it's worth a shot though
+        /// Again, I can't access it through the Inspector, so I added it here
+        AudioManager.StopSoundIfPlaying(MainGameSounds.menu_accept);        // This is optional
+        AudioManager.PlaySound(MainGameSounds.menu_accept);
     }
 
     public string GetTrackName() {
