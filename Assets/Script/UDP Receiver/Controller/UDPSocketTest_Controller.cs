@@ -207,11 +207,6 @@ public class UDPSocketTest_Controller : MonoBehaviour
             GameObject.Find("V-INPUT (TMP)").SetActive(false);
             GameObject.Find("Rotation (TMP)").SetActive(false);
         }
-
-        // Initialize the control rates
-        brakingRate = cctrl.brakingRate;
-        accelRateUDP = cctrl.accelRateUDP;
-        reverseRateUDP = cctrl.reverseRateUDP;
     }
 
     // Update is called once per frame
@@ -308,6 +303,11 @@ public class UDPSocketTest_Controller : MonoBehaviour
         });
 
         cctrl = CarControl.LocalPlayerInstance.GetComponent<CarControl>();
+
+        // Initialize the control rates
+        brakingRate = cctrl.brakingRate;
+        accelRateUDP = cctrl.accelRateUDP;
+        reverseRateUDP = cctrl.reverseRateUDP;
     }
     #endregion
 
