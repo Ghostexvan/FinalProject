@@ -11,6 +11,18 @@ PrefabInstance:
       propertyPath: maxSpeed
       value: 60
       objectReference: {fileID: 0}
+    - target: {fileID: 1919201434, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
+      propertyPath: brakeTorque
+      value: 3000
+      objectReference: {fileID: 0}
+    - target: {fileID: 1919201434, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
+      propertyPath: steeringRange
+      value: 45
+      objectReference: {fileID: 0}
+    - target: {fileID: 1919201434, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
+      propertyPath: steeringRangeAtMaxSpeed
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 1919201435, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: height
       value: 2
@@ -32,12 +44,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: 74196cf5d503c14488ae1ef1dbc6c9a4, type: 2}
     - target: {fileID: 1057494946909100755, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
+      propertyPath: m_SuspensionDistance
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1057494946909100755, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_SuspensionSpring.damper
       value: 4000
       objectReference: {fileID: 0}
     - target: {fileID: 1057494946909100755, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_SuspensionSpring.spring
-      value: 8000
+      value: 10000
       objectReference: {fileID: 0}
     - target: {fileID: 1057494946909100755, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_ForwardFriction.m_Stiffness
@@ -45,23 +61,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1057494946909100755, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_SidewaysFriction.m_Stiffness
-      value: 2.4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1057494946909100755, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_SidewaysFriction.m_ExtremumSlip
-      value: 0.08
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 1057494946909100755, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_SidewaysFriction.m_AsymptoteValue
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2716459193614891142, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
+      propertyPath: m_SuspensionDistance
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2716459193614891142, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_SuspensionSpring.damper
       value: 4000
       objectReference: {fileID: 0}
     - target: {fileID: 2716459193614891142, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_SuspensionSpring.spring
-      value: 8000
+      value: 10000
       objectReference: {fileID: 0}
     - target: {fileID: 2716459193614891142, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_ForwardFriction.m_Stiffness
@@ -70,6 +90,10 @@ PrefabInstance:
     - target: {fileID: 2716459193614891142, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_SidewaysFriction.m_Stiffness
       value: 2.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2716459193614891142, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
+      propertyPath: m_SidewaysFriction.m_AsymptoteValue
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2792218741957914664, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_RootOrder
@@ -116,12 +140,16 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3145262460232535540, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
+      propertyPath: m_SuspensionDistance
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3145262460232535540, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_SuspensionSpring.damper
       value: 4000
       objectReference: {fileID: 0}
     - target: {fileID: 3145262460232535540, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_SuspensionSpring.spring
-      value: 8000
+      value: 10000
       objectReference: {fileID: 0}
     - target: {fileID: 3145262460232535540, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_ForwardFriction.m_Stiffness
@@ -129,11 +157,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3145262460232535540, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_SidewaysFriction.m_Stiffness
-      value: 2.4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 3145262460232535540, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_SidewaysFriction.m_ExtremumSlip
-      value: 0.08
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 3145262460232535540, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_SidewaysFriction.m_AsymptoteValue
@@ -144,12 +172,16 @@ PrefabInstance:
       value: Racing Car Purple
       objectReference: {fileID: 0}
     - target: {fileID: 4795950753765878369, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
+      propertyPath: m_SuspensionDistance
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4795950753765878369, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_SuspensionSpring.damper
       value: 4000
       objectReference: {fileID: 0}
     - target: {fileID: 4795950753765878369, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_SuspensionSpring.spring
-      value: 8000
+      value: 10000
       objectReference: {fileID: 0}
     - target: {fileID: 4795950753765878369, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_ForwardFriction.m_Stiffness
@@ -158,6 +190,26 @@ PrefabInstance:
     - target: {fileID: 4795950753765878369, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_SidewaysFriction.m_Stiffness
       value: 2.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4795950753765878369, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
+      propertyPath: m_SidewaysFriction.m_AsymptoteValue
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6227607877416696010, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.4695242
+      objectReference: {fileID: 0}
+    - target: {fileID: 7671413317644158532, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.4695242
+      objectReference: {fileID: 0}
+    - target: {fileID: 7856647043997521970, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.4695242
+      objectReference: {fileID: 0}
+    - target: {fileID: 8572727330653681354, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.4695242
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
@@ -186,10 +238,10 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 100
+  MinDistance: 12
+  MaxDistance: 50
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 2
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -197,23 +249,41 @@ AudioSource:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 0
+      time: 0.24
       value: 1
-      inSlope: 0
-      outSlope: 0
+      inSlope: -4.168333
+      outSlope: -4.168333
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.3773999
+      value: 0.38256836
+      inSlope: -3.0300684
+      outSlope: -3.0300684
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.07887178
+    - serializedVersion: 3
+      time: 0.7547998
+      value: 0.055877686
+      inSlope: -0.26052082
+      outSlope: -0.26052082
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
     - serializedVersion: 3
       time: 1
       value: 0
-      inSlope: 0
-      outSlope: 0
+      inSlope: -0.2400957
+      outSlope: -0.2400957
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
+      inWeight: 0
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
@@ -222,7 +292,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0

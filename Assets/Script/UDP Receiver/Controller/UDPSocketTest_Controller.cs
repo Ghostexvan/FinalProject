@@ -96,7 +96,7 @@ public class UDPSocketTest_Controller : MonoBehaviour
 
 
     /// <summary>
-    /// The 3 rates, related to UDP car controlling. See more details in CarControlNormal script
+    /// The 3 rates, related to UDP car controlling. See more details in CarControl script
     /// </summary>
     private float brakingRate, accelRateUDP, reverseRateUDP;
 
@@ -167,7 +167,16 @@ public class UDPSocketTest_Controller : MonoBehaviour
     void Start()
     {
         //Dời cctrl xuống đây
-        cctrl = CarControl.LocalPlayerInstance.GetComponent<CarControl>();
+        StartCoroutine(WaitUntilHaveCarControl());
+        if (cctrl != null)
+        {
+            Debug.LogWarning("Got CarControl");
+        }
+        else
+        {
+            Debug.LogWarning("Didn't get CarControl");
+        }
+        //cctrl = CarControl.LocalPlayerInstance.GetComponent<CarControl>();
 
         //// Ta có thể disable/enable các UDP UI GameObject vì SetActive đổi activeSelf của tụi nó.
         /// Khi GamePanel bị disabled thì activeInHierarchy của tụi nó sẽ = False --> Ko display nữa (dù activeSelf có là True)
@@ -290,6 +299,17 @@ public class UDPSocketTest_Controller : MonoBehaviour
         //}
         
     }
+
+    #region IEnums
+    IEnumerator WaitUntilHaveCarControl()
+    {
+        yield return new WaitUntil(() => {
+            return CarControl.LocalPlayerInstance != null;
+        });
+
+        cctrl = CarControl.LocalPlayerInstance.GetComponent<CarControl>();
+    }
+    #endregion
 
     #region UDP - Data Receiving Methods
     private void InitUDPSocket()

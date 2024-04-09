@@ -17,7 +17,7 @@ public class PythonScriptCall : MonoBehaviour
     public string pythonAppPath;
 
     private static Process appProcess;
-    private bool isActive = false;      // Initial value is false
+    public bool isActive = false;      // Initial value is false
 
     void Awake()
     {
@@ -25,11 +25,15 @@ public class PythonScriptCall : MonoBehaviour
         {
             if (SceneManager.GetActiveScene().name.Equals("Launcher", StringComparison.OrdinalIgnoreCase))
             {
-                pythonAppPath = Application.dataPath + "/../" + "Hand Gesture Controller/Hand Gesture Controller.exe";
+                pythonAppPath = Application.dataPath + "/../" + "dist/" + "Hand Gesture Controller v1.2/Hand Gesture Controller.exe";
             }
             else
             {
-                pythonAppPath = Application.dataPath + "/../" + "10F TFLite - MediaPipe Holistic Demo/10F TFLite - MediaPipe Holistic Demo.exe";
+                pythonAppPath = Application.dataPath + "/../" + "dist/" + "10F TFLite Small - MediaPipe Holistic Demo/10F TFLite Small - MediaPipe Holistic Demo.exe";
+                if (File.Exists(pythonAppPath) == false)
+                {
+                    pythonAppPath = Application.dataPath + "/../" + "dist/" + "10F TFLite - MediaPipe Holistic Demo/10F TFLite - MediaPipe Holistic Demo.exe";
+                }
             }
         }    
     }
@@ -37,33 +41,37 @@ public class PythonScriptCall : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (SceneManager.GetActiveScene().name.Equals("Launcher", StringComparison.OrdinalIgnoreCase))
+        if (isActive == true)
         {
-            isActive = this.gameObject.GetComponent<UI_UDP_Receiver>().isUDPActive;
-            if (isActive)
+            if (SceneManager.GetActiveScene().name.Equals("Launcher", StringComparison.OrdinalIgnoreCase))
             {
-                UnityEngine.Debug.LogWarning("[APP INFO] " + pythonAppPath);
-                // StartCoroutine(RunOnStart());
+                isActive = this.gameObject.GetComponent<UI_UDP_Receiver>().isUDPActive;
+                if (isActive)
+                {
+                    UnityEngine.Debug.LogWarning("[APP INFO] " + pythonAppPath);
+                    StartCoroutine(RunOnStart());
+                }
+                else
+                {
+                    UnityEngine.Debug.LogWarning("[APP WARNING] UDP is disabled! App will not be started");
+                }
             }
+            // This is to open the app in the gameplay scenes
             else
             {
-                UnityEngine.Debug.LogWarning("[APP WARNING] UDP is disabled! App will not be started");
+                isActive = this.gameObject.GetComponent<UDPSocketTest_Controller>().isUDPActive;
+                if (isActive)
+                {
+                    UnityEngine.Debug.LogWarning("[APP INFO] " + pythonAppPath);
+                    StartCoroutine(RunOnStart());
+                }
+                else
+                {
+                    UnityEngine.Debug.LogWarning("[APP WARNING] UDP is disabled! App will not be started");
+                }
             }
         }
-        // This is to open the app in the gameplay scenes
-        else
-        {
-            isActive = this.gameObject.GetComponent<UDPSocketTest_Controller>().isUDPActive;
-            if (isActive)
-            {
-                UnityEngine.Debug.LogWarning("[APP INFO] " + pythonAppPath);
-                // StartCoroutine(RunOnStart());
-            }
-            else
-            {
-                UnityEngine.Debug.LogWarning("[APP WARNING] UDP is disabled! App will not be started");
-            }
-        }
+
     }
 
     // Update is called once per frame
@@ -80,7 +88,19 @@ public class PythonScriptCall : MonoBehaviour
         ProcessStartInfo appInfo = new ProcessStartInfo();
         appInfo.FileName = pythonAppPath;
 
-        appProcess = Process.Start(appInfo);
+        /// Added cond in case something happens
+        if (File.Exists(pythonAppPath))
+        {
+            try
+            {
+                appProcess = Process.Start(appInfo);
+            }
+            catch (Exception exc)
+            {
+                UnityEngine.Debug.LogError("App does not exist! Error:" + exc);
+                yield break;
+            }
+        }
 
         yield return null;
     }
