@@ -144,7 +144,7 @@ WheelCollider:
     m_ExtremumValue: 1
     m_AsymptoteSlip: 0.5
     m_AsymptoteValue: 1
-    m_Stiffness: 2.4
+    m_Stiffness: 3
   m_Enabled: 1
 --- !u!114 &3980790419362913178
 MonoBehaviour:
@@ -3032,7 +3032,7 @@ GameObject:
   m_Icon: {fileID: 3936346786652291628, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &3781786582525924736
 Transform:
   m_ObjectHideFlags: 0
@@ -8834,10 +8834,10 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 2.9408703
-  MaxDistance: 100
+  MinDistance: 12
+  MaxDistance: 50
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 2
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -8845,23 +8845,41 @@ AudioSource:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 0
+      time: 0.24
       value: 1
-      inSlope: 0
-      outSlope: 0
+      inSlope: -4.168333
+      outSlope: -4.168333
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.3773999
+      value: 0.38256836
+      inSlope: -3.0300684
+      outSlope: -3.0300684
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.07887178
+    - serializedVersion: 3
+      time: 0.7547998
+      value: 0.055877686
+      inSlope: -0.26052082
+      outSlope: -0.26052082
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
     - serializedVersion: 3
       time: 1
       value: 0
-      inSlope: 0
-      outSlope: 0
+      inSlope: -0.2400957
+      outSlope: -0.2400957
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
+      inWeight: 0
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
@@ -8960,8 +8978,8 @@ MonoBehaviour:
   currentMotorTorque: 0
   brakeTorque: 3000
   maxSpeed: 60
-  steeringRange: 30
-  steeringRangeAtMaxSpeed: 10
+  steeringRange: 40
+  steeringRangeAtMaxSpeed: 20
   centreOfGravityOffset: -1
   heightOffset: 50
   vInput: 0
@@ -11336,10 +11354,10 @@ WheelCollider:
     m_AsymptoteValue: 0.5
     m_Stiffness: 2
   m_SidewaysFriction:
-    m_ExtremumSlip: 0.08
+    m_ExtremumSlip: 0.2
     m_ExtremumValue: 1
     m_AsymptoteSlip: 0.5
-    m_AsymptoteValue: 0.75
+    m_AsymptoteValue: 1
     m_Stiffness: 2.4
   m_Enabled: 1
 --- !u!114 &1739175072969571959
@@ -11419,7 +11437,7 @@ WheelCollider:
     m_ExtremumValue: 1
     m_AsymptoteSlip: 0.5
     m_AsymptoteValue: 1
-    m_Stiffness: 2.4
+    m_Stiffness: 3
   m_Enabled: 1
 --- !u!114 &1078739851666495946
 MonoBehaviour:
@@ -11447,7 +11465,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3023201420053111267}
   - component: {fileID: 3556602247332349184}
-  - component: {fileID: 8857810457702630121}
+  - component: {fileID: 938317943661422741}
   m_Layer: 0
   m_Name: Wheel2
   m_TagString: Untagged
@@ -11489,17 +11507,18 @@ WheelCollider:
   m_WheelDampingRate: 0.25
   m_ForwardFriction:
     m_ExtremumSlip: 0.4
+    m_ExtremumValue: 1
     m_AsymptoteSlip: 0.8
     m_AsymptoteValue: 0.5
     m_Stiffness: 2
   m_SidewaysFriction:
-    m_ExtremumSlip: 0.08
+    m_ExtremumSlip: 0.2
     m_ExtremumValue: 1
     m_AsymptoteSlip: 0.5
-    m_AsymptoteValue: 0.75
+    m_AsymptoteValue: 1
     m_Stiffness: 2.4
   m_Enabled: 1
---- !u!114 &8857810457702630121
+--- !u!114 &938317943661422741
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -11508,4 +11527,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 7965526204143644956}
   m_Enabled: 1
   m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97f619fbd38973e428104eecec5d0e34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wheelModel: {fileID: 0}
+  WheelCollider: {fileID: 0}
+  steerable: 1
   motorized: 0

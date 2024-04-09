@@ -3578,10 +3578,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isStop: 0
   motorTorque: 2000
+  currentMotorTorque: 0
   brakeTorque: 3000
-  maxSpeed: 20
-  steeringRange: 45
-  steeringRangeAtMaxSpeed: 45
+  maxSpeed: 60
+  steeringRange: 30
+  steeringRangeAtMaxSpeed: 10
   centreOfGravityOffset: -1
   heightOffset: 50
   vInput: 0
@@ -3622,9 +3623,12 @@ MonoBehaviour:
   minSpeed: 1
   maxSpeed: 15
   carRb: {fileID: 0}
+  cctrl: {fileID: 0}
   carAudio: {fileID: 0}
   minPitch: 0.5
   maxPitch: 1
+  isFadeInDone: 0
+  isFadeOutDone: 0
 --- !u!1 &160406191903837750
 GameObject:
   m_ObjectHideFlags: 0

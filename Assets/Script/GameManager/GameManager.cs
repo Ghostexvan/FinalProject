@@ -610,7 +610,8 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             }
         }
 
-        yield return new WaitForSeconds(5f);
+        /// Wait a set amount of time for players to view the results screen, then load the Launcher scene
+        yield return new WaitForSeconds(10f);       /// Increased to 10s, giving players more time to check the results screen
         SceneManager.LoadScene("Launcher");
         // }
     }
