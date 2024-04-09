@@ -914,6 +914,10 @@ PrefabInstance:
       propertyPath: isBrakeCalledText
       value: 
       objectReference: {fileID: 851735696}
+    - target: {fileID: 7365841738816916509, guid: d90add6f9ff0e1241ab87133eb692cd8, type: 3}
+      propertyPath: isActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7365841739972006248, guid: d90add6f9ff0e1241ab87133eb692cd8, type: 3}
       propertyPath: totalLaps
       value: 3

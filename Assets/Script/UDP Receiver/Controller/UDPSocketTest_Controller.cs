@@ -316,7 +316,7 @@ public class UDPSocketTest_Controller : MonoBehaviour
     {
         Debug.LogWarning("[UDP STARTED] UDP (Controller) Initialized");
 
-        receiveThread = new Thread(new ThreadStart(ReceiveDataOld));
+        receiveThread = new Thread(new ThreadStart(ReceiveData));
         receiveThread.IsBackground = true;
         /*
          Background threads are identical to foreground threads, except that background threads do not prevent a process from terminating.
@@ -528,14 +528,14 @@ public class UDPSocketTest_Controller : MonoBehaviour
     //{
     //    if (isUDPActive)
     //    {
-    //        //isCameraActive = false;
+    //        isCameraActive = false;
     //        if (udpClient != null)
     //        {
     //            udpClient.Close();
 
     //            udpClient = null;
     //        }
-    //        // Client must be TURNED OFF before CLOSING THREAD
+    //        Client must be TURNED OFF before CLOSING THREAD
     //        if (receiveThread.IsAlive || receiveThread != null)
     //        {
     //            if (receiveThread.Join(100))
@@ -547,8 +547,8 @@ public class UDPSocketTest_Controller : MonoBehaviour
     //                Debug.LogWarning("[UDP ABORT] UDP Thread did not close in 100ms, abort - OnDestroy");
     //                receiveThread.Abort();
     //            }
-    //            //receiveThread.Abort();
-    //            ////receiveThread.Join();
+    //            receiveThread.Abort();
+    //            //receiveThread.Join();
 
     //            receiveThread = null;
 

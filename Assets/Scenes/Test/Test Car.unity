@@ -867,7 +867,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &457084255
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -943,7 +943,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 457084254}
-  m_LocalRotation: {x: 0.098537646, y: -0.000000004280663, z: 4.2386922e-10, w: 0.99513334}
+  m_LocalRotation: {x: 0.09853764, y: 0.0000000042806603, z: -4.23869e-10, w: 0.99513334}
   m_LocalPosition: {x: -2, y: 6.5200005, z: 43.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1029,8 +1029,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 563199268}
-  m_LocalRotation: {x: 0.098537646, y: -0.0000000042806625, z: 4.238692e-10, w: 0.99513334}
-  m_LocalPosition: {x: -4.926896, y: 4.0394716, z: 51.548584}
+  m_LocalRotation: {x: 0.09853764, y: 0.0000000042806603, z: -4.23869e-10, w: 0.99513334}
+  m_LocalPosition: {x: -2, y: 6.5200005, z: 43.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2042,7 +2042,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1721386329
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2088,7 +2088,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1721386328}
-  m_LocalRotation: {x: 0.098537646, y: -0.0000000042806625, z: 4.238692e-10, w: 0.99513334}
+  m_LocalRotation: {x: 0.09853764, y: 0.0000000042806603, z: -4.23869e-10, w: 0.99513334}
   m_LocalPosition: {x: -4.926896, y: 4.0394716, z: 51.548584}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2691,7 +2691,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 160399396773488884, guid: 36be496aa1d44434e8c594187dc25e05, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 161173190697040456, guid: 36be496aa1d44434e8c594187dc25e05, type: 3}
       propertyPath: m_SidewaysFriction.m_Stiffness
@@ -2989,7 +2989,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6538486889611672624, guid: cbc5509d19a07354d9f423bea017c927, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6696654933111118678, guid: cbc5509d19a07354d9f423bea017c927, type: 3}
       propertyPath: m_SuspensionSpring.damper
@@ -3009,7 +3009,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6696654933111118678, guid: cbc5509d19a07354d9f423bea017c927, type: 3}
       propertyPath: m_SidewaysFriction.m_ExtremumSlip
-      value: 0.05
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 6696654933111118678, guid: cbc5509d19a07354d9f423bea017c927, type: 3}
       propertyPath: m_SidewaysFriction.m_ExtremumValue
@@ -3041,11 +3041,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8659636783141593593, guid: cbc5509d19a07354d9f423bea017c927, type: 3}
       propertyPath: steeringRange
-      value: 45
+      value: 60
       objectReference: {fileID: 0}
     - target: {fileID: 8659636783141593593, guid: cbc5509d19a07354d9f423bea017c927, type: 3}
       propertyPath: steeringRangeAtMaxSpeed
-      value: 20
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 8764442635223678601, guid: cbc5509d19a07354d9f423bea017c927, type: 3}
       propertyPath: m_Enabled
@@ -3073,7 +3073,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8783569208198106225, guid: cbc5509d19a07354d9f423bea017c927, type: 3}
       propertyPath: m_SidewaysFriction.m_ExtremumSlip
-      value: 0.05
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 8783569208198106225, guid: cbc5509d19a07354d9f423bea017c927, type: 3}
       propertyPath: m_SidewaysFriction.m_ExtremumValue
