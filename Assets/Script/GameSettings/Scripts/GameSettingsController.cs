@@ -57,7 +57,7 @@ public class GameSettingsController : MonoBehaviour
     }
 
     public void LoadSettings(){
-        if (PlayerPrefs.GetInt("width") != 0){
+        if (PlayerPrefs.HasKey("width") && PlayerPrefs.GetInt("width") != 0){
             gameSettings.resolution.width = PlayerPrefs.GetInt("width");
             gameSettings.resolution.height = PlayerPrefs.GetInt("height");
             gameSettings.resolution.isFullscreen = PlayerPrefs.GetInt("fullscreen") == 1;
@@ -68,7 +68,14 @@ public class GameSettingsController : MonoBehaviour
             //gameSettings.volume.music = PlayerPrefs.GetFloat("JSAM_MUSIC_VOL");
             //gameSettings.volume.sound = PlayerPrefs.GetFloat("JSAM_SOUND_VOL");
             gameSettings.frameRate =  PlayerPrefs.GetInt("framerate");
-        } 
+        } else {
+            gameSettings.resolution.width = Screen.currentResolution.width;
+            gameSettings.resolution.height = Screen.currentResolution.height;
+            gameSettings.resolution.isFullscreen = true;
+            gameSettings.volume.master = 0.5f;
+            gameSettings.volume.music = 0.5f;
+            gameSettings.volume.sound = 0.5f;
+        }
     }
 
     private void OnApplicationQuit() {
