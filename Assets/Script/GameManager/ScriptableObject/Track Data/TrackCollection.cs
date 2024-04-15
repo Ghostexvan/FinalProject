@@ -1,21 +1,31 @@
 // Chua don dep
 // Chua comment
+using System;
 using UnityEngine;
 
 [CreateAssetMenu]
 public class TrackCollection : ScriptableObject
 {
     [SerializeField]
-    private string[] trackCollection;
+    private TrackInfo[] trackInfo;
 
-    public string GetRandomTrack(){
-        string[] randomList = trackCollection;
+    public TrackInfo GetRandomTrack()
+    {
+        TrackInfo[] randomList = trackInfo;
         randomList.Shuffle();
 
         return randomList[0];
     }
 
-    public string[] GetTrackCollection(){
-        return trackCollection;
+    public TrackInfo[] GetTrackInfo()
+    {
+        return trackInfo;
     }
+}
+
+[Serializable]
+public struct TrackInfo
+{
+    public string trackName;
+    public Sprite trackSprite;
 }

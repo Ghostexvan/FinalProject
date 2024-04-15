@@ -47,10 +47,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c06b15fdab6d8a47ae4c5aa574d3d30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  totalLaps: 1
+  totalLaps: 3
   playerInfos: []
   startTime: 0
   endTime: -1
+  gameplaySoundHandler: {fileID: 0}
   playerData: {fileID: 11400000, guid: f57b58dc9e910ce458f98a2d529793e7, type: 2}
 --- !u!114 &7365841739972006254
 MonoBehaviour:
@@ -91,6 +92,9 @@ MonoBehaviour:
   steerAngle: 0
   normalizedRota: 0
   receiveTimeOut: 1
+  keyboardIcon: {fileID: 21300000, guid: 0d8dc03b1e2933a49956eaeef0d775dd, type: 3}
+  handIcon: {fileID: 21300000, guid: 156982f6e0e5e37469d6a283f80a49e5, type: 3}
+  inputModeDisplay: {fileID: 0}
   labelText: {fileID: 0}
   angleText: {fileID: 0}
   rotationText: {fileID: 0}
@@ -108,7 +112,7 @@ MonoBehaviour:
     callBrake: 0
     brakeValue: 0
   isUDPActive: 1
-  isDebugMode: 1
+  isDebugMode: 0
 --- !u!114 &7365841738816916509
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -122,3 +126,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pythonAppPath: 
+  isActive: 1

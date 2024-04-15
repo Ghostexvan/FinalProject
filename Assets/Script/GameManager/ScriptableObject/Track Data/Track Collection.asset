@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1a6f992def20514db2e71289974712e, type: 3}
   m_Name: Track Collection
   m_EditorClassIdentifier: 
-  trackCollection:
-  - Cartoon Track Test
-  - Mario Circuit
+  trackInfo:
+  - trackName: Cartoon Track Test
+    trackSprite: {fileID: 21300000, guid: 5017541066a6afe4c92776e3686fa58f, type: 3}
+  - trackName: Mario Circuit
+    trackSprite: {fileID: 21300000, guid: cd78e5874a5387840b4149bc7bf5fe2d, type: 3}
