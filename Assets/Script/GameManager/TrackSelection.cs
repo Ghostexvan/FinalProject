@@ -4,13 +4,19 @@ using System.Collections.Generic;
 using Photon.Pun;
 using TMPro;
 using UnityEngine;
-
+using UnityEngine.UI;
 using JSAM;
 
 public class TrackSelection : MonoBehaviour
 {
     [SerializeField]
     private TrackCollection trackCollection;
+
+    [SerializeField]
+    private Image trackImage;
+
+    [SerializeField]
+    private Sprite defaultImage;
 
     public static TrackSelection Instance;
 
@@ -19,9 +25,9 @@ public class TrackSelection : MonoBehaviour
             TrackSelection.Instance = this;
         }
 
-        foreach (string trackName in trackCollection.GetTrackCollection()){
+        foreach (TrackInfo trackInfo in trackCollection.GetTrackInfo()){
             this.GetComponent<TMP_Dropdown>().AddOptions(new List<string>() {
-                trackName,
+                trackInfo.trackName,
             });
         }
     }
@@ -29,8 +35,14 @@ public class TrackSelection : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!PhotonNetwork.IsMasterClient && PhotonNetwork.CurrentRoom.GetPlayer(PhotonNetwork.CurrentRoom.MasterClientId).CustomProperties.ContainsKey("Track")) {
-            this.GetComponent<TMP_Dropdown>().value = (int)PhotonNetwork.CurrentRoom.GetPlayer(PhotonNetwork.CurrentRoom.MasterClientId).CustomProperties["Track"];
+        if (PhotonNetwork.CurrentRoom.GetPlayer(PhotonNetwork.CurrentRoom.MasterClientId).CustomProperties.ContainsKey("Track")) {
+            int selectedTrack = (int)PhotonNetwork.CurrentRoom.GetPlayer(PhotonNetwork.CurrentRoom.MasterClientId).CustomProperties["Track"];
+            this.GetComponent<TMP_Dropdown>().value = selectedTrack;
+            if (selectedTrack != 0){
+                trackImage.sprite = trackCollection.GetTrackInfo()[selectedTrack - 1].trackSprite;
+            } else {
+                trackImage.sprite = defaultImage;  
+            }
         }
     }
 
@@ -39,7 +51,7 @@ public class TrackSelection : MonoBehaviour
         ExitGames.Client.Photon.Hashtable trackSelection = PhotonNetwork.LocalPlayer.CustomProperties;
         trackSelection["Track"] = this.GetComponent<TMP_Dropdown>().value;
         PhotonNetwork.LocalPlayer.SetCustomProperties(trackSelection);
-
+        
         /// Test: ...This seems weird, but it's worth a shot though
         /// Again, I can't access it through the Inspector, so I added it here
         AudioManager.StopSoundIfPlaying(MainGameSounds.menu_accept);        // This is optional
@@ -51,7 +63,7 @@ public class TrackSelection : MonoBehaviour
     }
 
     public string GetRandomTrackName() {
-        return this.trackCollection.GetRandomTrack();
+        return this.trackCollection.GetRandomTrack().trackName;
     }
 
     private void OnEnable() {
