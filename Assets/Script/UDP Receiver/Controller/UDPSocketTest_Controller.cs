@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -8,8 +7,7 @@ using System.Threading;
 using TMPro;
 using UnityEngine;
 using System.Globalization;
-using System.Drawing;
-using Photon.Pun;
+using UnityEngine.UI;
 
 // This contains both UDP and changing Gameplay UI
 public class UDPSocketTest_Controller : MonoBehaviour
@@ -35,6 +33,15 @@ public class UDPSocketTest_Controller : MonoBehaviour
 
     [SerializeField]
     private double receiveTimeOut = 1f;
+
+    [SerializeField]
+    private Sprite keyboardIcon;
+
+    [SerializeField]
+    private Sprite handIcon;
+
+    [SerializeField]
+    private Image inputModeDisplay;
 
     #endregion
 
@@ -181,12 +188,12 @@ public class UDPSocketTest_Controller : MonoBehaviour
         //// Ta có thể disable/enable các UDP UI GameObject vì SetActive đổi activeSelf của tụi nó.
         /// Khi GamePanel bị disabled thì activeInHierarchy của tụi nó sẽ = False --> Ko display nữa (dù activeSelf có là True)
         // Disable Debug UI elements
-        if (isDebugMode == false)
-        {
-            GameObject.Find("Angle (TMP)").SetActive(false);
-            GameObject.Find("V-INPUT (TMP)").SetActive(false);
-            GameObject.Find("Rotation (TMP)").SetActive(false);
-        }
+        // if (isDebugMode == false)
+        // {
+        //     GameObject.Find("Angle (TMP)").SetActive(false);
+        //     GameObject.Find("V-INPUT (TMP)").SetActive(false);
+        //     GameObject.Find("Rotation (TMP)").SetActive(false);
+        // }
 
         // isUDPActive = true;
         old_v_inp = 0.0f;
@@ -293,6 +300,14 @@ public class UDPSocketTest_Controller : MonoBehaviour
 
         //}
         
+    }
+
+    public void LateUpdate() {
+        if (isKeyboardInput){
+            inputModeDisplay.sprite = keyboardIcon;
+        } else {
+            inputModeDisplay.sprite = handIcon;
+        }
     }
 
     #region IEnums
