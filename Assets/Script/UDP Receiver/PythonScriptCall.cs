@@ -29,10 +29,10 @@ public class PythonScriptCall : MonoBehaviour
             }
             else
             {
-                pythonAppPath = Application.dataPath + "/../" + "dist/" + "10F TFLite Small - MediaPipe Holistic/10F TFLite Small - MediaPipe Holistic.exe";
+                pythonAppPath = Application.dataPath + "/../" + "dist/" + "10F TFLite Small - MediaPipe Holistic/MediaPipe Holistic Demo.exe";
                 if (File.Exists(pythonAppPath) == false)
                 {
-                    pythonAppPath = Application.dataPath + "/../" + "dist/" + "10F TFLite - MediaPipe Holistic/10F TFLite - MediaPipe Holistic.exe";
+                    pythonAppPath = Application.dataPath + "/../" + "dist/" + "10F TFLite - MediaPipe Holistic/MediaPipe Holistic Demo.exe";
                 }
             }
         }    
