@@ -17,11 +17,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1919201434, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: steeringRange
-      value: 60
+      value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 1919201434, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: steeringRangeAtMaxSpeed
-      value: 40
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 1919201435, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: height
