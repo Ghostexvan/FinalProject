@@ -527,7 +527,8 @@ public class LauncherManager : MonoBehaviourPunCallbacks
         if (historyPanel[historyPanel.Count - 1] == roomPanel) {
             PhotonNetwork.LeaveRoom();
         } else if (historyPanel[historyPanel.Count - 1] == lobbyPanel){
-            PhotonNetwork.LeaveLobby();
+            if (PhotonNetwork.InLobby)
+                PhotonNetwork.LeaveLobby();
             PhotonNetwork.Disconnect();
         }
 
@@ -565,9 +566,10 @@ public class LauncherManager : MonoBehaviourPunCallbacks
 
     IEnumerator WaitUntilGameStart()
     {
-        yield return new WaitUntil(() => PhotonNetwork.CurrentRoom.GetPlayer(PhotonNetwork.CurrentRoom.MasterClientId).CustomProperties.ContainsKey("GameStart") &&
+        yield return new WaitUntil(() => PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom.GetPlayer(PhotonNetwork.CurrentRoom.MasterClientId).CustomProperties.ContainsKey("GameStart") &&
                                          (bool)PhotonNetwork.CurrentRoom.GetPlayer(PhotonNetwork.CurrentRoom.MasterClientId).CustomProperties["GameStart"]);
-        LoadingToLevel();
+        if (PhotonNetwork.InRoom)
+            LoadingToLevel();
     }
 
     #endregion
