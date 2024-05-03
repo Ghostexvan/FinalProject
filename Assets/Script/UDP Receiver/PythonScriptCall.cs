@@ -25,14 +25,14 @@ public class PythonScriptCall : MonoBehaviour
         {
             if (SceneManager.GetActiveScene().name.Equals("Launcher", StringComparison.OrdinalIgnoreCase))
             {
-                pythonAppPath = Application.dataPath + "/../" + "dist/" + "Hand Gesture Controller v1.2/Hand Gesture Controller.exe";
+                pythonAppPath = Application.dataPath + "/../" + "dist/" + "Hand Gesture Controller/Hand Gesture Controller.exe";
             }
             else
             {
-                pythonAppPath = Application.dataPath + "/../" + "dist/" + "10F TFLite Small - MediaPipe Holistic Demo/10F TFLite Small - MediaPipe Holistic Demo.exe";
+                pythonAppPath = Application.dataPath + "/../" + "dist/" + "10F TFLite Small - MediaPipe Holistic/10F TFLite Small - MediaPipe Holistic.exe";
                 if (File.Exists(pythonAppPath) == false)
                 {
-                    pythonAppPath = Application.dataPath + "/../" + "dist/" + "10F TFLite - MediaPipe Holistic Demo/10F TFLite - MediaPipe Holistic Demo.exe";
+                    pythonAppPath = Application.dataPath + "/../" + "dist/" + "10F TFLite - MediaPipe Holistic/10F TFLite - MediaPipe Holistic.exe";
                 }
             }
         }    
