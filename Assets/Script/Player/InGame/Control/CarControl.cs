@@ -131,7 +131,7 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
 
             udpsock = GameObject.Find("GameManager").GetComponent<UDPSocketTest_Controller>();
         }
-        
+
         // Init currentMotorTorque
         currentMotorTorque = 0f;
 
@@ -210,6 +210,11 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
                     vInput = Input.GetAxis("Vertical");
                     hInput = Input.GetAxis("Horizontal");
 
+                    if (Input.GetButtonDown("Reset"))
+                    {
+                        GetComponent<LapController>().ResetPositionControl();
+                    }
+
                     // Added temp input for braking
                     if (Input.GetKey(KeyCode.Space))
                     {
@@ -268,16 +273,17 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
         và các xe phụ sẽ chuyển động dựa vào 4 input value được gửi mỗi frame
         --> Phản ánh đúng input của người chơi khác
          */
-        
+
     }
 
-    private void FixedUpdate() {
+    private void FixedUpdate()
+    {
         if (isStop)
         {
             rigidBody.velocity = Vector3.zero;
         }
     }
-    
+
     // Cập nhật vị trí minimapCamera
     private void LateUpdate()
     {
@@ -335,9 +341,9 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
                 // I think I forgot to re-adjust the value of brakeTorque WHEN we stopped braking.
                 /// So when I brake using Spacebar, "brakeCall" will be True and wheel.WheelCollider.brakeTorque will increase.
                 /// And when I'd completely stopped, "brakeCall" will be False, but wheel.WheelCollider.brakeTorque won't be changed (since I forgot to make it change).
-                
+
                 wheel.WheelCollider.brakeTorque = 0f;
-                
+
             }
 
             if (isAccelerating)
@@ -382,7 +388,8 @@ public class CarControl : MonoBehaviourPunCallbacks, IPunObservable
         return Math.Abs(this.forwardSpeed);
     }
 
-    public float GetForwardSpeed(){
+    public float GetForwardSpeed()
+    {
         return this.forwardSpeed;
     }
 

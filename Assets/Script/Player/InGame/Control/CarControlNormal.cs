@@ -226,6 +226,10 @@ public class CarControlNormal : MonoBehaviourPunCallbacks, IPunObservable
                 vInput = Input.GetAxis("Vertical");
                 hInput = Input.GetAxis("Horizontal");
 
+                if (Input.GetButtonDown("Reset")){
+                    GetComponent<LapController>().ResetPositionControl();
+                }
+
                 // Added temp input for braking
                 if (Input.GetKey(KeyCode.Space))
                 {

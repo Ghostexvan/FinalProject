@@ -159,20 +159,27 @@ public class LauncherManager : MonoBehaviourPunCallbacks
     {
         historyPanel.Add(launcherPanel);
 
-        if (PlayerPrefs.HasKey("PlayerName"))
+        Debug.Log(PhotonNetwork.InRoom + " - " + PlayerPrefs.HasKey("PlayerName"));
+        if (PhotonNetwork.InRoom){
+            PhotonNetwork.LeaveRoom();
+            launcherPanel.SetActive(false);
+            playerNamePanel.SetActive(false);
+        } 
+        else if (PlayerPrefs.HasKey("PlayerName"))
         {
             launcherPanel.SetActive(true);
             playerNamePanel.SetActive(false);
+            lobbyPanel.SetActive(false);
         }
         else
         {
             launcherPanel.SetActive(false);
             playerNamePanel.SetActive(true);
             historyPanel.Add(playerNamePanel);
+            lobbyPanel.SetActive(false);
         }
 
-        lobbyPanel.SetActive(false);
-        roomPanel.SetActive(false);
+        roomPanel.SetActive(false);        
         selectPanel.SetActive(false);
         optionsPanel.SetActive(false);
         progressPanel.SetActive(false);
@@ -191,6 +198,8 @@ public class LauncherManager : MonoBehaviourPunCallbacks
     {
         Debug.Log("Connected to server");
         PhotonNetwork.JoinLobby(customLobby);
+        if (historyPanel[historyPanel.Count - 1] != lobbyPanel)
+            historyPanel.Add(lobbyPanel);
     }
 
     public override void OnJoinedLobby()
@@ -210,16 +219,22 @@ public class LauncherManager : MonoBehaviourPunCallbacks
     {
         Debug.Log("Joined a room, local player index: " + PhotonNetwork.LocalPlayer.GetPlayerNumber());
 
+        ExitGames.Client.Photon.Hashtable readyProperty = PhotonNetwork.LocalPlayer.CustomProperties;
+        if (readyProperty.ContainsKey("Ready")){
+            readyProperty["Ready"] = false;
+        }
+
         foreach (Player player in PhotonNetwork.PlayerList)
         {
             Debug.Log("Getting player " + player.NickName + "'s info");
+
             StartCoroutine(WaitUntilPlayerConnectedAndReady(player));
         }
     }
 
     public override void OnLeftRoom()
     {
-        SetPlayerReady();
+        SetPlayerUnready();
         Debug.LogWarning("Left the room");
 
         /// Test: When Client/Local Player (you) left the room, stops all Room sounds that was played (if it is still playing)
@@ -439,6 +454,17 @@ public class LauncherManager : MonoBehaviourPunCallbacks
         historyPanel.Add(roomPanel);
 
         StartCoroutine(WaitUntilInsideRoom());
+    }
+
+    public void SetPlayerUnready(){
+        ExitGames.Client.Photon.Hashtable readyProperty = PhotonNetwork.LocalPlayer.CustomProperties;
+
+        if (readyProperty.ContainsKey("Ready"))
+        {
+            readyProperty["Ready"] = false;
+        }
+
+        PhotonNetwork.LocalPlayer.SetCustomProperties(readyProperty);
     }
 
     public void SetPlayerReady()

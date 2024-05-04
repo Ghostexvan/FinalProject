@@ -59,6 +59,8 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
     // Kiểm tra Lap có phải Lap cuối cùng chưa, được sử dụng trong GameplayMusicHandler.cs
     public bool isFinalLap;
 
+    public bool hardReset = false;
+
     #endregion
 
     #region MonoBehaviour Callbacks
@@ -110,6 +112,10 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
 
         // Hien thi thong tin vong dua
         DisplayLapInfo();
+
+        if (!PhotonNetwork.LocalPlayer.IsLocal && hardReset){
+            StartCoroutine(ResetPosition(0.1f));
+        }
     }
 
     // Ham nay duoc goi moi khi nguoi choi vao mot collider trigger
@@ -126,6 +132,11 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
+    public void ResetPositionControl(){
+        hardReset = true;
+        StartCoroutine(ResetPosition(0.1f));
+    }
+
     #endregion
 
     #region MonoBehaviourPunCallbacks Callbacks
@@ -136,6 +147,7 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
         if (stream.IsWriting)
         {
             stream.SendNext(lapInfos.Count);
+            stream.SendNext(hardReset);
 
             foreach (LapInfo lapInfo in lapInfos)
             {
@@ -150,6 +162,7 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
         else
         {
             int lapInfoCount = (int)stream.ReceiveNext();
+            hardReset = (bool)stream.ReceiveNext();
 
             for (int i = 0; i < lapInfoCount; i++)
             {
@@ -524,6 +537,7 @@ public class LapController : MonoBehaviourPunCallbacks, IPunObservable
 
         // Viec reset da hoan thanh
         isResettingPosition = false;
+        hardReset = false;
     }
 
     #endregion
