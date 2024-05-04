@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c06b15fdab6d8a47ae4c5aa574d3d30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  totalLaps: 3
+  totalLaps: 1
   playerInfos: []
   startTime: 0
   endTime: -1
