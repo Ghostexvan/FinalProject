@@ -35,7 +35,7 @@ public class PythonScriptCall : MonoBehaviour
                     pythonAppPath = Application.dataPath + "/../" + "dist/" + "10F TFLite - MediaPipe Holistic/MediaPipe Holistic Demo.exe";
                 }
             }
-        }    
+        }
     }
 
     // Start is called before the first frame update
