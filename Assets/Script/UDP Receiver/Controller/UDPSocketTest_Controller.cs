@@ -101,6 +101,7 @@ public class UDPSocketTest_Controller : MonoBehaviour
         "This will enable UDP's Label, Steering Angle, Rotation and V-INPUT display on the game's UI.")]
     public bool isDebugMode = true;
 
+    public bool isReady = false;
 
     /// <summary>
     /// The 3 rates, related to UDP car controlling. See more details in CarControl script
@@ -409,7 +410,7 @@ public class UDPSocketTest_Controller : MonoBehaviour
                 {
                     IPEndPoint anyIP = new IPEndPoint(IPAddress.Any, port);
                     byte[] buffer = udpClient.Receive(ref anyIP);
-
+                    isReady = true;
                     print("[UDP INFO] UDP buffer length received: " + buffer.Length);
 
                     if (buffer == null)

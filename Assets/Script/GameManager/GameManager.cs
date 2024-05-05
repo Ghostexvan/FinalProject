@@ -232,7 +232,8 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         // photonView.RPC("SetPlayer", RpcTarget.All, PhotonNetwork.LocalPlayer.GetPlayerNumber(), CarControl.LocalPlayerInstance);
         // photonView.RPC("SetPlayer", RpcTarget.All);
-        photonView.RPC("SetPlayer", RpcTarget.All);
+        // photonView.RPC("SetPlayer", RpcTarget.All);
+        StartCoroutine(WaitForAppToStart());
     }
 
     private void UpdatePlayerInfo()
@@ -614,6 +615,14 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         yield return new WaitForSeconds(10f);       /// Increased to 10s, giving players more time to check the results screen
         SceneManager.LoadScene("Launcher");
         // }
+    }
+
+    private IEnumerator WaitForAppToStart(){
+        yield return new WaitUntil(() => {
+            return GetComponent<UDPSocketTest_Controller>().isReady;
+        });
+
+        photonView.RPC("SetPlayer", RpcTarget.All);
     }
 
     #endregion
