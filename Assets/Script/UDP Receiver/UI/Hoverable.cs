@@ -23,7 +23,7 @@ public class Hoverable : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     {
         Debug.Log("[MOUSE INFO] Mouse hovering over: " + this.gameObject.name);
 
-        if (TryGetComponent<Button>(out Button button) || TryGetComponent<TMP_Dropdown>(out TMP_Dropdown dropdown)){
+        if (TryGetComponent<Button>(out Button button) || TryGetComponent<TMP_Dropdown>(out TMP_Dropdown dropdown) || TryGetComponent<Toggle>(out Toggle toggle)){
             MouseController.Instance.SetHoveringButton(this.gameObject);
             soundHandler.PlaySoundHover();
         }
@@ -42,7 +42,7 @@ public class Hoverable : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     public void OnPointerExit(PointerEventData eventData)
     {
         Debug.Log("[MOUSE INFO] Mouse exit: " + this.gameObject.name);
-        if (TryGetComponent<Button>(out Button button)){
+        if (TryGetComponent<Button>(out Button button) || TryGetComponent<Toggle>(out Toggle toggle)){
             MouseController.Instance.UnsetButtonHovering();
         }
 
@@ -69,7 +69,7 @@ public class Hoverable : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     public void OnPointerMove(PointerEventData eventData)
     {
         Debug.Log("[MOUSE INFO] Mouse hovering over: " + this.gameObject.name);
-        if (TryGetComponent<Button>(out Button button) || TryGetComponent<TMP_Dropdown>(out TMP_Dropdown dropdown)){
+        if (TryGetComponent<Button>(out Button button) || TryGetComponent<TMP_Dropdown>(out TMP_Dropdown dropdown) || TryGetComponent<Toggle>(out Toggle toggle)){
             MouseController.Instance.SetHoveringButton(this.gameObject);
         }
         
